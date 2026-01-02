@@ -82,7 +82,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // 4. Xử lý Đăng nhập Google (MỚI TINH)
+  // 4. Xử lý Đăng nhập Google
   Future<void> _onGoogleSignInRequested(GoogleSignInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
@@ -97,25 +97,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // 5: TỰ ĐỘNG KIỂM TRA ĐĂNG NHẬP (Khi mở App)
+  // 👇 5: QUAN TRỌNG NHẤT - SỬA LỖI NHÁY MÀN HÌNH
   Future<void> _onAuthCheckRequested(AuthCheckRequested event, Emitter<AuthState> emit) async {
+    // 1. Phát trạng thái Loading ngay lập tức để Splash Screen hiển thị vòng xoay
+    emit(AuthLoading()); 
+
     try {
-      // Gọi UseCase kiểm tra xem có ai đang đăng nhập không
+      // 2. Bắt đầu kiểm tra (Mất khoảng 0.5s - 1s)
       final user = await checkAuthUseCase();
       
+      // 3. Có kết quả thì mới đổi trạng thái
       if (user != null) {
-        // Kiểm tra kỹ thêm 1 lần nữa xem email đã xác thực chưa (để an toàn)
         final firebaseUser = FirebaseAuth.instance.currentUser;
         if (firebaseUser != null && !firebaseUser.emailVerified) {
-             // Có user nhưng chưa xác thực email -> Bắt ra ngoài
              await FirebaseAuth.instance.signOut();
+             // Nếu lỗi -> Về Initial -> Splash tự chuyển sang Login
              emit(AuthInitial()); 
         } else {
-             // Đã ngon lành -> Vào thẳng Dashboard
+             // Nếu ngon -> Về Success -> Splash tự chuyển sang Dashboard
              emit(AuthSuccess(user)); 
         }
       } else {
-        // Chưa đăng nhập -> Ở lại màn hình Login
+        // Không có user -> Về Initial -> Splash tự chuyển sang Login
         emit(AuthInitial()); 
       }
     } catch (e) {
@@ -123,11 +126,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // 6: ĐĂNG XUẤT (Sửa lỗi Google nhớ tài khoản cũ)
+  // 6: ĐĂNG XUẤT
   Future<void> _onSignOutRequested(SignOutRequested event, Emitter<AuthState> emit) async {
     try {
-      await signOutUseCase(); // Lệnh này sẽ xóa cả session Google
-      emit(AuthInitial()); // Về màn hình đăng nhập
+      await signOutUseCase(); 
+      emit(AuthInitial()); 
     } catch (e) {
       emit(AuthFailure(e.toString()));
     }

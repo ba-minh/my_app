@@ -2,39 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-// Lưu ý: Sửa lại đường dẫn import nếu IDE báo đỏ
 import '../../../auth/presentation/blocs/auth_bloc.dart';
-import '../../../auth/presentation/blocs/auth_event.dart';
 import '../../../auth/presentation/blocs/auth_state.dart';
+// 👇 Import Widget Dialog mà bạn vừa tạo ở Bước 1
+import '../widgets/logout_dialog.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // BlocListener: Lắng nghe trạng thái AuthBloc
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        // Nếu trạng thái trở về Initial (tức là đã đăng xuất thành công)
         if (state is AuthInitial) {
-          // Chuyển hướng về trang Login
-          // Lưu ý: Kiểm tra lại router của bạn xem đường dẫn login là '/' hay '/login'
+          // Khi Bloc báo về trạng thái Initial (đã đăng xuất xong) -> Chuyển về Login
           context.go('/login'); 
         }
       },
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Trang chủ (Dashboard)"),
-          backgroundColor: const Color(0xFF055B1D), // Màu xanh nông trại
+          backgroundColor: const Color(0xFF055B1D),
           foregroundColor: Colors.white,
           actions: [
-            // 👇 NÚT ĐĂNG XUẤT TRÊN THANH APPBAR
+            // 👇 1. NÚT TRÊN APPBAR
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: "Đăng xuất",
               onPressed: () {
-                // Gửi sự kiện yêu cầu đăng xuất
-                context.read<AuthBloc>().add(SignOutRequested());
+                // Thay vì gọi Bloc ngay, ta hiện Dialog
+                _showLogoutDialog(context);
               },
             ),
           ],
@@ -53,10 +50,11 @@ class DashboardScreen extends StatelessWidget {
               const Text("Test tính năng Logout bên dưới 👇"),
               const SizedBox(height: 30),
               
-              // 👇 NÚT ĐĂNG XUẤT TO GIỮA MÀN HÌNH (CHO DỄ BẤM TEST)
+              // 👇 2. NÚT GIỮA MÀN HÌNH
               ElevatedButton.icon(
                 onPressed: () {
-                  context.read<AuthBloc>().add(SignOutRequested());
+                   // Thay vì gọi Bloc ngay, ta hiện Dialog
+                  _showLogoutDialog(context);
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text("Đăng xuất ngay"),
@@ -70,6 +68,20 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  // 👇 HÀM HIỆN DIALOG THEO ĐÚNG YÊU CẦU FIGMA
+  void _showLogoutDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true, // Cho phép bấm ra ngoài để đóng
+      barrierLabel: "Dismiss",
+      barrierColor: Colors.black.withOpacity(0.25), // 👇 Background tối 25%
+      transitionDuration: Duration.zero, // 👇 Animation Instant (Hiện ngay lập tức)
+      pageBuilder: (context, animation1, animation2) {
+        return const LogoutDialog(); // Gọi Widget Dialog bạn đã tạo ở Bước 1
+      },
     );
   }
 }

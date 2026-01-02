@@ -22,13 +22,13 @@ final GoRouter appRouter = GoRouter(
         return const AuthScreen(); 
       },
     ),
-
+    
     // 3. Màn hình quên mật khẩu
     GoRoute(
       path: '/forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
-
+    
     // 4. Màn hình Dashboard 
     GoRoute(
       path: '/dashboard',
