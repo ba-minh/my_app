@@ -1,10 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+
 import '../../features/splash/presentation/screens/splash_screen.dart';
-import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/auth_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/main_layout.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash', 
@@ -32,7 +32,7 @@ final GoRouter appRouter = GoRouter(
     // 4. Màn hình Dashboard 
     GoRoute(
       path: '/dashboard',
-      builder: (context, state) => const DashboardScreen(),
+      builder: (context, state) => const MainLayout(),
     ),
   ],
 );

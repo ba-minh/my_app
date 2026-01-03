@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core_ui/theme/app_colors.dart';
 import '../../../../app/utils/auth_error_translator.dart';
 import '../../../../app/widgets/custom_textfield.dart';
 import '../../../../app/widgets/primary_button.dart';
@@ -22,25 +23,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => context.pop(), // Quay lại màn đăng nhập
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
+          onPressed: () => context.pop(),
         ),
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            // Logic cũ của ta: Nếu thành công gửi mail thì AuthBloc cũng trả về AuthFailure kèm thông báo
-            // Nên ta hiển thị thông báo ra (Dù đỏ hay xanh thì người dùng vẫn đọc được)
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                // Nếu thông báo chứa chữ "thành công" hoặc "gửi" thì hiện màu xanh, còn lại màu đỏ
-                backgroundColor: state.message.contains("gửi") ? const Color(0xFF1E5128) : Colors.red,
+                backgroundColor: state.message.contains("gửi") 
+                    ? AppColors.primary 
+                    : AppColors.error,
               ),
             );
           }
@@ -57,14 +57,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: AppColors.black,
                 ),
               ),
               const SizedBox(height: 10),
               // Dòng mô tả xám
               const Text(
                 "Vui lòng nhập số email để đặt lại mật khẩu",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: AppColors.grey),
               ),
               const SizedBox(height: 30),
 
@@ -89,7 +89,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         );
                         return;
                       }
-                      // Gửi sự kiện yêu cầu Reset
                       context.read<AuthBloc>().add(
                             ResetPasswordRequested(_emailController.text.trim()),
                           );

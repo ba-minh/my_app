@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core_ui/theme/app_colors.dart';
 import '../../../../app/widgets/custom_textfield.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../blocs/auth_bloc.dart';
@@ -18,7 +19,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController(); // Thêm ô nhập lại pass
+  final _confirmPasswordController = TextEditingController(); 
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +27,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       listener: (context, state) {
         if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
           );
         } else if (state is AuthSuccess) {
-          context.go('/dashboard'); // Đăng ký thành công cũng vào Dashboard
+          context.go('/dashboard'); 
         }
       },
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: SingleChildScrollView( // Cho phép cuộn nếu bàn phím che mất
+        child: SingleChildScrollView( 
           child: Column(
             children: [
               const SizedBox(height: 20),
@@ -72,15 +73,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     text: "Tiếp tục",
                     isLoading: state is AuthLoading,
                     onPressed: () {
-                      // Kiểm tra mật khẩu khớp nhau trước khi gửi
+                      // Kiểm tra mật khẩu khớp nhau
                       if (_passwordController.text != _confirmPasswordController.text) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Mật khẩu không khớp!")),
+                          const SnackBar(
+                            content: Text("Mật khẩu không khớp!"),
+                            backgroundColor: AppColors.error,
+                          ),
                         );
                         return;
                       }
                       
-                      // Gửi sự kiện Đăng ký
                       context.read<AuthBloc>().add(
                             SignUpRequested(
                               _emailController.text,

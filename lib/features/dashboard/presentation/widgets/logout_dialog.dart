@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core_ui/theme/app_colors.dart';
 import '../../../auth/presentation/blocs/auth_bloc.dart';
 import '../../../auth/presentation/blocs/auth_event.dart';
 
@@ -10,19 +11,15 @@ class LogoutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Màu xanh chủ đạo
-    const mainColor = Color(0xFF1E5128); 
-
     return Dialog(
-      backgroundColor: Colors.transparent, // Để trong suốt để ta tự vẽ container
+      backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
-        // 👇 KÍCH THƯỚC KHUNG: 376 x 130
         width: 376,
-        height: 180, // Tôi tăng nhẹ lên 180 vì 130 sẽ bị chật khi chứa cả Title, Subtitle và Button
+        height: 180,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16), // Bo góc giống ảnh
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
@@ -34,7 +31,7 @@ class LogoutDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: mainColor,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 8),
@@ -43,7 +40,10 @@ class LogoutDialog extends StatelessWidget {
             const Text(
               "Bạn có chắc chắn muốn đăng xuất không ?",
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+              style: TextStyle(
+                color: AppColors.grey,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -51,43 +51,49 @@ class LogoutDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // NÚT 1: ĐĂNG XUẤT (Viền xanh, nền trắng)
+                // NÚT 1: ĐĂNG XUẤT (Viền xanh, Chữ xanh)
                 SizedBox(
-                  width: 110, // Kích thước 110
-                  height: 40, // Kích thước 40
+                  width: 110,
+                  height: 40,
                   child: OutlinedButton(
                     onPressed: () {
-                      // Tắt dialog trước
                       context.pop(); 
-                      // Gửi sự kiện đăng xuất
                       context.read<AuthBloc>().add(SignOutRequested());
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: mainColor),
+                      side: const BorderSide(color: AppColors.primary),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                       padding: EdgeInsets.zero,
+                      foregroundColor: AppColors.primary,
                     ),
-                    child: const Text("Đăng xuất", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      "Đăng xuất", 
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
 
-                // NÚT 2: ĐÓNG (Nền xanh, chữ trắng)
+                // NÚT 2: ĐÓNG (Nền xanh, Chữ trắng)
                 SizedBox(
-                  width: 110, // Kích thước 110
-                  height: 40, // Kích thước 40
+                  width: 110,
+                  height: 40,
                   child: ElevatedButton(
                     onPressed: () {
-                      context.pop(); // Đóng dialog
+                      context.pop();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: mainColor,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text("Đóng", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      "Đóng", 
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],

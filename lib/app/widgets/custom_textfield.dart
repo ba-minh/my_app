@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomTextField extends StatefulWidget {
   final String label;
   final String placeholder;
-  final bool isPassword; // Đây là biến xác định xem ô này có phải là mật khẩu không
+  final bool isPassword;
   final TextEditingController controller;
 
   const CustomTextField({
@@ -19,39 +19,49 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  // Biến nội bộ để theo dõi trạng thái ẩn/hiện
   bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
+    // 1. Lấy bộ Theme từ context
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          // 2. Dùng textTheme chuẩn thay vì style cứng
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: widget.controller,
-          // Nếu là password thì dùng biến _obscureText, nếu không thì luôn hiện (false)
           obscureText: widget.isPassword ? _obscureText : false,
+          
+          // 3. Decoration: Phần lớn sẽ được cấu hình trong AppTheme (Bước 2)
           decoration: InputDecoration(
             hintText: widget.placeholder,
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            // (Lưu ý: Nếu cấu hình AppTheme tốt, bạn có thể xóa dòng hintStyle này đi)
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant, // Màu xám chuẩn của Material 3
+            ),
             
-            // LOGIC CON MẮT Ở ĐÂY
+            // Phần border nên để AppTheme lo, nhưng nếu muốn giữ ở đây thì dùng theme:
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
-                      // Chọn icon dựa trên trạng thái
                       _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: Colors.grey,
+                      // 4. Dùng màu icon chuẩn
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () {
-                      // Khi bấm vào thì đảo ngược trạng thái (Ẩn -> Hiện -> Ẩn)
                       setState(() {
                         _obscureText = !_obscureText;
                       });

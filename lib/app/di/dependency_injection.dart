@@ -10,7 +10,6 @@ import '../../features/auth/presentation/blocs/auth_bloc.dart';
 import '../../domain/usecases/sign_up_usecase.dart'; 
 import '../../domain/usecases/reset_password_usecase.dart'; 
 import '../../domain/usecases/sign_in_google_usecase.dart'; 
-// 👇 Import 2 UseCase mới
 import '../../domain/usecases/check_auth_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 
@@ -49,7 +48,7 @@ Future<void> init() async {
           signUpUseCase: sl(),
           resetPasswordUseCase: sl(),
           signInGoogleUseCase: sl(),
-          checkAuthUseCase: sl(), // 👇 Tiêm vào Bloc
-          signOutUseCase: sl(),   // 👇 Tiêm vào Bloc
+          checkAuthUseCase: sl(),
+          signOutUseCase: sl(),
         ));
 }
