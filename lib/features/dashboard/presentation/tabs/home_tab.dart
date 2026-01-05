@@ -1,58 +1,112 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core_ui/theme/app_colors.dart';
+import '../widgets/device_card.dart';
 
-class HomeTab extends StatefulWidget {
+import '../widgets/dashboard_app_bar.dart';
+
+import '../blocs/device_bloc.dart';
+
+class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
-
-  @override
-  State<HomeTab> createState() => _HomeTabState();
-}
-
-class _HomeTabState extends State<HomeTab> {
-  // Biến giả lập dữ liệu (Giai đoạn 1: UI Tĩnh)
-  // false = Chưa có tủ nào (Hiện màn hình Rỗng)
-  // true = Đã có tủ (Hiện danh sách - Sẽ làm ở Bước 4)
-  final bool _hasDevices = false; 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, 
-      body: _hasDevices 
-          ? _buildDeviceList() // Nếu có thiết bị
-          : _buildEmptyState(), // Nếu chưa có thiết bị
-    );
-  }
+      backgroundColor: AppColors.background,
+      
+      // 👇 SỬA LOGIC: Bấm Avatar -> Chuyển sang màn hình Profile chi tiết
+      appBar: DashboardAppBar(
+        onAvatarTap: () {
+          // Dùng context.push để có thể back lại
+          context.push('/dashboard/profile-detail');
+        }, 
+      ),
 
-  // 1. GIAO DIỆN TRẠNG THÁI RỖNG (Empty State)
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              "Chưa có thiết bị nào....",
-              style: TextStyle(
-                fontSize: 18,
-                // 👇 SỬA 2: Dùng AppColors.grey
-                color: AppColors.grey, 
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
+      body: SafeArea(
+        child: BlocBuilder<DeviceBloc, DeviceState>(
+          builder: (context, state) {
+            
+            if (state.devices.isEmpty) {
+              return _buildEmptyState();
+            }
+
+            return _buildDeviceList(context, state.devices);
+          },
+        ),
       ),
     );
   }
 
-  // 2. GIAO DIỆN DANH SÁCH (Placeholder cho Bước 4)
-  Widget _buildDeviceList() {
-    return const Center(
-      child: Text("Danh sách thiết bị sẽ hiện ở đây"),
+  // --- GIỮ NGUYÊN CODE DƯỚI ĐÂY ---
+  Widget _buildEmptyState() {
+    return LayoutBuilder(builder: (context, constraints) {
+      return SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.sensors_off_rounded, size: 80, color: AppColors.grey.withOpacity(0.5)),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Text(
+                    "Chưa có tủ điều khiển nào.\nNhấn dấu + để thêm mới.",
+                    style: TextStyle(fontSize: 16, color: AppColors.grey, fontWeight: FontWeight.w500, height: 1.5),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildDeviceList(BuildContext context, List<Map<String, dynamic>> devices) {
+    final width = MediaQuery.of(context).size.width;
+    final int crossAxisCount = width < 600 ? 2 : 3;
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Danh sách tủ điều khiển", 
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+          ),
+          const SizedBox(height: 16),
+          
+          Expanded(
+            child: GridView.builder(
+              itemCount: devices.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.9,
+              ),
+              itemBuilder: (context, index) {
+                final device = devices[index];
+                
+                return DeviceCard(
+                  name: device['name'],
+                  icon: device['icon'], 
+                  onTap: () {
+                    context.go('/dashboard/detail', extra: device);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

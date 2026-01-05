@@ -9,35 +9,32 @@ class DashboardFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 65,
-      height: 65,
+      width: 60,
+      height: 60,
       child: FloatingActionButton(
         onPressed: onPressed,
-        backgroundColor: AppColors.white,
-        // Viền tròn dùng AppColors.primary
-        shape: const CircleBorder(
-          side: BorderSide(color: AppColors.primary, width: 2.5),
-        ),
+        // 👇 Nền xanh Primary
+        backgroundColor: AppColors.primary, 
+        shape: const CircleBorder(),
         elevation: 4,
-        // 👇 Vẽ dấu cộng dày thay vì dùng Icon mặc định
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Thanh ngang
+            // Thanh ngang (Màu trắng)
             Container(
               width: 32,
-              height: 7, // Độ dày nét
+              height: 7, 
               decoration: BoxDecoration(
-                color: AppColors.primary, // Dùng AppColors
+                color: Colors.white, // 👇 Đổi thành màu trắng
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            // Thanh dọc
+            // Thanh dọc (Màu trắng)
             Container(
-              width: 7, // Độ dày nét
+              width: 7, 
               height: 32,
               decoration: BoxDecoration(
-                color: AppColors.primary, // Dùng AppColors
+                color: Colors.white, // 👇 Đổi thành màu trắng
                 borderRadius: BorderRadius.circular(4),
               ),
             ),

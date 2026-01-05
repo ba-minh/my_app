@@ -54,7 +54,7 @@ class LogoutDialog extends StatelessWidget {
                 // NÚT 1: ĐĂNG XUẤT (Viền xanh, Chữ xanh)
                 SizedBox(
                   width: 110,
-                  height: 40,
+                  height: 42, // 👇 Tăng nhẹ height lên 42 để thoải mái hơn
                   child: OutlinedButton(
                     onPressed: () {
                       context.pop(); 
@@ -65,12 +65,16 @@ class LogoutDialog extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding: EdgeInsets.zero,
+                      padding: EdgeInsets.zero, // Bỏ padding mặc định
                       foregroundColor: AppColors.primary,
                     ),
                     child: const Text(
                       "Đăng xuất", 
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 15, 
+                        fontWeight: FontWeight.bold,
+                        height: 1.2, // 👇 Thêm dòng này để căn dòng chuẩn
+                      ),
                     ),
                   ),
                 ),
@@ -78,7 +82,7 @@ class LogoutDialog extends StatelessWidget {
                 // NÚT 2: ĐÓNG (Nền xanh, Chữ trắng)
                 SizedBox(
                   width: 110,
-                  height: 40,
+                  height: 42, // 👇 Tăng nhẹ height lên 42
                   child: ElevatedButton(
                     onPressed: () {
                       context.pop();
@@ -89,10 +93,15 @@ class LogoutDialog extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      padding: EdgeInsets.zero, // 👇 QUAN TRỌNG: Bỏ padding mặc định để chữ không bị đẩy
                     ),
                     child: const Text(
                       "Đóng", 
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 15, 
+                        fontWeight: FontWeight.bold,
+                        height: 1.2, // 👇 QUAN TRỌNG: Fix lỗi mất chân chữ g
+                      ),
                     ),
                   ),
                 ),

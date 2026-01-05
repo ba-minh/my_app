@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../../../core_ui/theme/app_colors.dart';
-import 'logout_dialog.dart';
+// ❌ XÓA: import 'logout_dialog.dart'; (Không cần nữa)
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback onLogout;
+  // 👇 ĐỔI TÊN: Thay vì onLogout thì là onAvatarTap
+  final VoidCallback onAvatarTap;
 
   const DashboardAppBar({
     super.key,
-    required this.onLogout,
+    required this.onAvatarTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.primary, // 👇 Dùng biến màu chung
+      backgroundColor: AppColors.primary,
       elevation: 0,
-      toolbarHeight: 120,
+      toolbarHeight: 100, 
       titleSpacing: 0,
       title: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -23,20 +24,23 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon
-            const Icon(Icons.eco, color: AppColors.white, size: 50), // 👇 Dùng AppColors.white
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0), 
+              child: const Icon(Icons.eco, color: AppColors.white, size: 40),
+            ),
             
-            // Khoảng cách
-            const SizedBox(height: 8), 
+            const SizedBox(height: 4), 
 
-            // Text
-            const Text(
-              "Trang trại của tôi",
-              style: TextStyle(
-                color: AppColors.white, // 👇 Dùng AppColors.white
-                fontSize: 23,
-                fontWeight: FontWeight.bold,
-                height: 1.0,
+            const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "Trang trại của tôi",
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: 22, 
+                  fontWeight: FontWeight.bold,
+                  height: 1.0,
+                ),
               ),
             ),
           ],
@@ -46,13 +50,21 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsets.only(right: 20.0),
           child: GestureDetector(
-            onTap: () => _showLogoutDialog(context),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.white24,
-              backgroundImage: const NetworkImage("https://i.pravatar.cc/150?img=11"),
-              onBackgroundImageError: (_, __) {},
-              child: const Icon(Icons.person, color: AppColors.white),
+            // 👇 GỌI HÀM CHUYỂN TRANG
+            onTap: onAvatarTap, 
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: const BoxDecoration(
+                color: Colors.white30,
+                shape: BoxShape.circle,
+              ),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.white24,
+                backgroundImage: const NetworkImage("https://i.pravatar.cc/150?img=11"),
+                onBackgroundImageError: (_, __) {},
+                child: const Icon(Icons.person, color: AppColors.white, size: 20),
+              ),
             ),
           ),
         )
@@ -60,17 +72,8 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: "Dismiss",
-      barrierColor: Colors.black.withOpacity(0.25),
-      transitionDuration: Duration.zero,
-      pageBuilder: (context, animation1, animation2) => const LogoutDialog(),
-    );
-  }
+  // ❌ ĐÃ XÓA HÀM _showLogoutDialog
 
   @override
-  Size get preferredSize => const Size.fromHeight(120);
+  Size get preferredSize => const Size.fromHeight(100);
 }

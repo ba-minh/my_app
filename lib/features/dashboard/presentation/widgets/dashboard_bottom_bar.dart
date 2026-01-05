@@ -13,19 +13,18 @@ class DashboardBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double barHeight = 85.0; // Tăng chiều cao lên 85 để chứa bo góc đẹp hơn
+    // 👇 1. Tăng chiều cao lên 85 để chứa đủ Icon + Text
+    const double barHeight = 75.0; 
+    const double borderRadius = 20.0; 
 
-    // Container chịu trách nhiệm vẽ Viền và Bo góc
     return Container(
       height: barHeight,
       decoration: const BoxDecoration(
         color: Colors.transparent,
-        // 👇 Bo góc 24 ở 2 đỉnh trên
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+          topLeft: Radius.circular(borderRadius),
+          topRight: Radius.circular(borderRadius),
         ),
-        // 👇 Viền bao màu xanh (Dùng AppColors.primary)
         border: Border(
           top: BorderSide(color: AppColors.primary, width: 2.0),
           left: BorderSide(color: AppColors.primary, width: 2.0),
@@ -34,26 +33,23 @@ class DashboardBottomBar extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(22),
-          topRight: Radius.circular(22),
+          topLeft: Radius.circular(borderRadius - 2),
+          topRight: Radius.circular(borderRadius - 2),
         ),
         child: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 8.0,
+          shape: null, 
           color: AppColors.white,
           elevation: 0,
           height: barHeight,
           padding: EdgeInsets.zero,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceAround, 
             children: [
-              _buildNavItem(Icons.home_outlined, 0),
-              _buildNavItem(Icons.calendar_today_outlined, 1),
-              
-              const SizedBox(width: 60), // Khoảng trống rộng hơn cho FAB to
-              
-              _buildNavItem(Icons.notifications_outlined, 2),
-              _buildNavItem(Icons.person_outline, 3),
+              // 👇 2. Thay Icon đậm hơn & Thêm nhãn Text
+              _buildNavItem(Icons.grid_view_rounded, "Danh sách", 0),
+              _buildNavItem(Icons.calendar_month, "Lịch biểu", 1),
+              _buildNavItem(Icons.notifications, "Thông báo", 2),
+              _buildNavItem(Icons.person, "Cá nhân", 3),
             ],
           ),
         ),
@@ -61,8 +57,11 @@ class DashboardBottomBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData icon, int index) {
+  // 👇 Sửa hàm này để nhận thêm String label
+  Widget _buildNavItem(IconData icon, String label, int index) {
     final bool isSelected = currentIndex == index;
+    // Màu sắc: Chọn thì xanh, không chọn thì xám đậm (để trông đậm hơn)
+    final Color itemColor = isSelected ? AppColors.primary : Colors.black87;
 
     return Expanded(
       child: InkWell(
@@ -70,11 +69,23 @@ class DashboardBottomBar extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Icon
             Icon(
               icon,
-              size: 30,
-              // 👇 Dùng AppColors.primary thay cho biến local cũ
-              color: isSelected ? AppColors.primary : AppColors.black,
+              size: 28, // Kích thước vừa phải
+              color: itemColor,
+            ),
+            
+            const SizedBox(height: 4), // Khoảng cách giữa Icon và Chữ
+
+            // Text Label
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12, // Cỡ chữ nhỏ vừa vặn
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, // Chọn thì chữ đậm
+                color: itemColor,
+              ),
             ),
           ],
         ),

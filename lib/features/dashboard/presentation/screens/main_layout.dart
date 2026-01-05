@@ -6,45 +6,67 @@ import '../../../auth/presentation/blocs/auth_bloc.dart';
 import '../../../auth/presentation/blocs/auth_state.dart';
 import '../../../../core_ui/theme/app_colors.dart';
 
-import '../widgets/dashboard_app_bar.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import '../widgets/dashboard_fab.dart';
+import 'add_device_screen.dart';
+import '../blocs/device_bloc.dart';
 
-import '../tabs/home_tab.dart'; 
+class MainLayout extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
 
-class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  const MainLayout({
+    super.key,
+    required this.navigationShell,
+  });
 
-  @override
-  State<MainLayout> createState() => _MainLayoutState();
-}
-
-class _MainLayoutState extends State<MainLayout> {
-  int _selectedIndex = 0;
-
-  // Danh sách các màn hình con
-  final List<Widget> _tabs = [
-    const HomeTab(),
-    const Center(child: Text("Màn hình Lịch")),
-    const Center(child: Text("Màn hình Thông báo")),
-    const Center(child: Text("Màn hình Cá nhân")),
-  ];
-
-  // Hàm chuyển tab
   void _onTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
   }
 
-  // Hàm xử lý khi bấm nút (+) thêm tủ
-  void _onAddDevicePressed() {
-     // TODO: Code logic mở màn hình thêm tủ ở Bước 5
-     print("Mở màn hình thêm tủ");
+  // Chức năng 1: Thêm Tủ (Home)
+  Future<void> _onAddDevice(BuildContext context) async {
+    final result = await Navigator.push(
+      context, 
+      MaterialPageRoute(builder: (context) => const AddDeviceScreen())
+    );
+    if (result != null && result is Map<String, dynamic>) {
+      context.read<DeviceBloc>().add(AddDeviceEvent(result));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Đã thêm tủ thành công!"), backgroundColor: AppColors.primary),
+      );
+    }
+  }
+
+  // Chức năng 2: Thêm Lịch (Calendar)
+  void _onAddSchedule(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Chức năng thêm lịch đang phát triển")),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Lấy đường dẫn hiện tại
+    final String location = GoRouterState.of(context).uri.toString();
+
+    VoidCallback? fabAction;
+    bool showFab = false;
+
+    // 👇 LOGIC QUYẾT ĐỊNH FAB THEO MÀN HÌNH
+    if (location == '/dashboard') {
+      // 1. Home -> Hiện nút thêm Tủ
+      showFab = true;
+      fabAction = () => _onAddDevice(context);
+    } else if (location == '/calendar') {
+      // 2. Calendar -> Hiện nút thêm Lịch
+      showFab = true;
+      fabAction = () => _onAddSchedule(context);
+    } 
+    // Các trường hợp khác (Detail, Notify, Profile...) -> showFab = false -> Ẩn FAB cha
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthInitial) {
@@ -53,27 +75,19 @@ class _MainLayoutState extends State<MainLayout> {
       },
       child: Scaffold(
         backgroundColor: AppColors.background, 
+
+        body: navigationShell,
+
+        // FAB
+        floatingActionButton: showFab 
+            ? DashboardFab(onPressed: fabAction!)
+            : null,
         
-        // 1. APP BAR
-        appBar: DashboardAppBar(
-          onLogout: () {}, 
-        ),
+        // 👇 VỊ TRÍ MỚI: Góc dưới bên phải (EndFloat)
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
-        // 2. BODY
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _tabs,
-        ),
-
-        // 3. FAB
-        floatingActionButton: DashboardFab(
-          onPressed: _onAddDevicePressed,
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-        // 4. BOTTOM BAR
         bottomNavigationBar: DashboardBottomBar(
-          currentIndex: _selectedIndex,
+          currentIndex: navigationShell.currentIndex,
           onTap: _onTabSelected,
         ),
       ),
