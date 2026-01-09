@@ -5,6 +5,11 @@ class CustomTextField extends StatefulWidget {
   final String placeholder;
   final bool isPassword;
   final TextEditingController controller;
+  
+  // 👇 1. THÊM THAM SỐ MỚI
+  final Iterable<String>? autofillHints; 
+  final TextInputType? keyboardType;
+  final VoidCallback? onEditingComplete;
 
   const CustomTextField({
     super.key,
@@ -12,6 +17,10 @@ class CustomTextField extends StatefulWidget {
     required this.placeholder,
     this.isPassword = false,
     required this.controller,
+    // 👇 2. THÊM VÀO CONSTRUCTOR
+    this.autofillHints,
+    this.keyboardType,
+    this.onEditingComplete,
   });
 
   @override
@@ -23,7 +32,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Lấy bộ Theme từ context
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -32,7 +40,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         Text(
           widget.label,
-          // 2. Dùng textTheme chuẩn thay vì style cứng
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onSurface,
@@ -43,22 +50,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
           controller: widget.controller,
           obscureText: widget.isPassword ? _obscureText : false,
           
-          // 3. Decoration: Phần lớn sẽ được cấu hình trong AppTheme (Bước 2)
+          // 👇 3. TRUYỀN THAM SỐ XUỐNG TEXTFIELD
+          autofillHints: widget.autofillHints,
+          keyboardType: widget.keyboardType ?? (widget.isPassword 
+              ? TextInputType.visiblePassword 
+              : TextInputType.emailAddress), // Mặc định thông minh
+
+          onEditingComplete: widget.onEditingComplete,
+          
           decoration: InputDecoration(
             hintText: widget.placeholder,
-            // (Lưu ý: Nếu cấu hình AppTheme tốt, bạn có thể xóa dòng hintStyle này đi)
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant, // Màu xám chuẩn của Material 3
+              color: colorScheme.onSurfaceVariant,
             ),
-            
-            // Phần border nên để AppTheme lo, nhưng nếu muốn giữ ở đây thì dùng theme:
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      // 4. Dùng màu icon chuẩn
                       color: colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () {

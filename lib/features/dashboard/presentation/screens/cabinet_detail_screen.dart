@@ -4,7 +4,6 @@ import '../../../../core_ui/theme/app_colors.dart';
 import '../widgets/sensor_card.dart';
 import '../widgets/io_device_card.dart';
 import '../widgets/detail_app_bar.dart';
-// 👇 Import DashboardFab để dùng nút to đẹp đồng bộ
 import '../widgets/dashboard_fab.dart'; 
 
 class CabinetDetailScreen extends StatefulWidget {

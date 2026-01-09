@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core_ui/theme/app_colors.dart';
 import '../../../../app/widgets/custom_textfield.dart';
@@ -36,65 +37,78 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView( 
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              
-              // 1. Email
-              CustomTextField(
-                label: "Email của bạn",
-                placeholder: "Nhập Email của bạn.....",
-                controller: _emailController,
-              ),
-              const SizedBox(height: 20),
+          // 👇 1. BỌC TRONG AUTOFILL GROUP
+          child: AutofillGroup(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                
+                // 2. Email
+                CustomTextField(
+                  label: "Email của bạn",
+                  placeholder: "Nhập Email của bạn.....",
+                  controller: _emailController,
+                  // 👇 Gợi ý email mới
+                  autofillHints: const [AutofillHints.email],
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20),
 
-              // 2. Mật khẩu
-              CustomTextField(
-                label: "Tạo mật khẩu",
-                placeholder: "Nhập mật khẩu của bạn.....",
-                isPassword: true,
-                controller: _passwordController,
-              ),
-              const SizedBox(height: 20),
+                // 3. Mật khẩu
+                CustomTextField(
+                  label: "Tạo mật khẩu",
+                  placeholder: "Nhập mật khẩu của bạn.....",
+                  isPassword: true,
+                  controller: _passwordController,
+                  // 👇 Gợi ý mật khẩu mới (thường sẽ đề xuất mật khẩu mạnh)
+                  autofillHints: const [AutofillHints.newPassword],
+                ),
+                const SizedBox(height: 20),
 
-              // 3. Nhập lại mật khẩu
-              CustomTextField(
-                label: "Nhập lại mật khẩu",
-                placeholder: "Nhập lại mật khẩu của bạn.....",
-                isPassword: true,
-                controller: _confirmPasswordController,
-              ),
-              const SizedBox(height: 40),
+                // 4. Nhập lại mật khẩu
+                CustomTextField(
+                  label: "Nhập lại mật khẩu",
+                  placeholder: "Nhập lại mật khẩu của bạn.....",
+                  isPassword: true,
+                  controller: _confirmPasswordController,
+                  // 👇 Cũng là mật khẩu mới
+                  autofillHints: const [AutofillHints.newPassword],
+                ),
+                const SizedBox(height: 40),
 
-              // 4. Nút Đăng ký
-              BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  return PrimaryButton(
-                    text: "Tiếp tục",
-                    isLoading: state is AuthLoading,
-                    onPressed: () {
-                      // Kiểm tra mật khẩu khớp nhau
-                      if (_passwordController.text != _confirmPasswordController.text) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Mật khẩu không khớp!"),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
-                        return;
-                      }
-                      
-                      context.read<AuthBloc>().add(
-                            SignUpRequested(
-                              _emailController.text,
-                              _passwordController.text,
+                // 5. Nút Đăng ký
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return PrimaryButton(
+                      text: "Tiếp tục",
+                      isLoading: state is AuthLoading,
+                      onPressed: () {
+                        // Kiểm tra mật khẩu khớp nhau
+                        if (_passwordController.text != _confirmPasswordController.text) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Mật khẩu không khớp!"),
+                              backgroundColor: AppColors.error,
                             ),
                           );
-                    },
-                  );
-                },
-              ),
-            ],
+                          return;
+                        }
+                        
+                        // Kích hoạt lưu thông tin đăng ký
+                        TextInput.finishAutofillContext();
+                        
+                        context.read<AuthBloc>().add(
+                              SignUpRequested(
+                                _emailController.text,
+                                _passwordController.text,
+                              ),
+                            );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

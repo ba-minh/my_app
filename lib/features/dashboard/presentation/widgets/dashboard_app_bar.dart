@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
+
 import '../../../../core_ui/theme/app_colors.dart';
-// ❌ XÓA: import 'logout_dialog.dart'; (Không cần nữa)
+import '../../../auth/presentation/blocs/auth_bloc.dart';
+import '../../../auth/presentation/blocs/auth_state.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
-  // 👇 ĐỔI TÊN: Thay vì onLogout thì là onAvatarTap
   final VoidCallback onAvatarTap;
 
   const DashboardAppBar({
@@ -13,66 +16,76 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.primary,
-      elevation: 0,
-      toolbarHeight: 100, 
-      titleSpacing: 0,
-      title: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 10.0), 
-              child: const Icon(Icons.eco, color: AppColors.white, size: 40),
-            ),
-            
-            const SizedBox(height: 4), 
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        // Lấy thông tin User từ Firebase (Chỉ lấy ảnh mạng, không lấy ảnh local nữa)
+        final user = FirebaseAuth.instance.currentUser;
+        final String? photoUrl = user?.photoURL;
 
-            const FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                "Trang trại của tôi",
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 22, 
-                  fontWeight: FontWeight.bold,
-                  height: 1.0,
+        return AppBar(
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+          toolbarHeight: 100, 
+          titleSpacing: 0,
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0), 
+                  child: const Icon(Icons.eco, color: AppColors.white, size: 40),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 20.0),
-          child: GestureDetector(
-            // 👇 GỌI HÀM CHUYỂN TRANG
-            onTap: onAvatarTap, 
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: Colors.white30,
-                shape: BoxShape.circle,
-              ),
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.white24,
-                backgroundImage: const NetworkImage("https://i.pravatar.cc/150?img=11"),
-                onBackgroundImageError: (_, __) {},
-                child: const Icon(Icons.person, color: AppColors.white, size: 20),
-              ),
+                
+                const SizedBox(height: 4), 
+
+                // 👇 QUAY VỀ TIÊU ĐỀ CỐ ĐỊNH
+                const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    "Trang trại của tôi", 
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 22, 
+                      fontWeight: FontWeight.bold,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        )
-      ],
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: onAvatarTap, 
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.white30,
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.white24,
+                    // 👇 Chỉ hiển thị ảnh mạng hoặc icon mặc định
+                    backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                        ? NetworkImage(photoUrl)
+                        : null,
+                    child: (photoUrl == null || photoUrl.isEmpty)
+                        ? const Icon(Icons.person, color: AppColors.white, size: 20)
+                        : null,
+                  ),
+                ),
+              ),
+            )
+          ],
+        );
+      },
     );
   }
-
-  // ❌ ĐÃ XÓA HÀM _showLogoutDialog
 
   @override
   Size get preferredSize => const Size.fromHeight(100);

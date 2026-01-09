@@ -12,6 +12,9 @@ import '../../features/dashboard/presentation/tabs/home_tab.dart';
 import '../../features/dashboard/presentation/screens/cabinet_detail_screen.dart';
 // 👇 MỚI: Import Profile Screen
 import '../../features/dashboard/presentation/screens/profile_screen.dart';
+import '../../features/dashboard/presentation/screens/notification_screen.dart';
+import '../../features/dashboard/presentation/screens/calendar_screen.dart';
+import '../../features/dashboard/presentation/screens/cabinet_schedule_screen.dart';
 
 // Key để quản lý Navigator gốc
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -64,7 +67,6 @@ final GoRouter appRouter = GoRouter(
                 // 👇 MỚI: Route con Trang cá nhân
                 GoRoute(
                   path: 'profile-detail', // Đường dẫn: /dashboard/profile-detail
-                  parentNavigatorKey: _rootNavigatorKey, // Che lấp BottomBar
                   builder: (context, state) => const ProfileScreen(),
                 ),
               ],
@@ -77,7 +79,21 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/calendar',
-              builder: (context, state) => const Scaffold(body: Center(child: Text("Màn hình Lịch"))),
+              // Màn hình danh sách tủ (CalendarScreen)
+              builder: (context, state) => const CalendarScreen(),
+              routes: [
+                // Route con: Chi tiết lịch biểu của từng tủ
+                GoRoute(
+                  path: 'detail', // Đường dẫn đầy đủ: /calendar/detail
+                  builder: (context, state) {
+                    // Lấy dữ liệu tủ được truyền sang
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return CabinetScheduleScreen(
+                      cabinetName: extra?['name'] ?? 'Tủ điện',
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -87,7 +103,8 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/notifications',
-              builder: (context, state) => const Scaffold(body: Center(child: Text("Màn hình Thông báo"))),
+              // 👇 SỬA Ở ĐÂY: Thay Scaffold text bằng NotificationScreen
+              builder: (context, state) => const NotificationScreen(),
             ),
           ],
         ),
@@ -97,7 +114,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/profile',
-              builder: (context, state) => const Scaffold(body: Center(child: Text("Màn hình Cá nhân"))),
+              builder: (context, state) => const ProfileScreen(),
             ),
           ],
         ),

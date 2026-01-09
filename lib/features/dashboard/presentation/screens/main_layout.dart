@@ -60,11 +60,7 @@ class MainLayout extends StatelessWidget {
       // 1. Home -> Hiện nút thêm Tủ
       showFab = true;
       fabAction = () => _onAddDevice(context);
-    } else if (location == '/calendar') {
-      // 2. Calendar -> Hiện nút thêm Lịch
-      showFab = true;
-      fabAction = () => _onAddSchedule(context);
-    } 
+    }
     // Các trường hợp khác (Detail, Notify, Profile...) -> showFab = false -> Ẩn FAB cha
 
     return BlocListener<AuthBloc, AuthState>(

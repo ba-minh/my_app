@@ -34,6 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<GoogleSignInRequested>(_onGoogleSignInRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<SignOutRequested>(_onSignOutRequested);
+    on<UpdateProfileRequested>(_onUpdateProfileRequested);
   }
 
   // 1. Xử lý Đăng nhập
@@ -133,6 +134,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthInitial()); 
     } catch (e) {
       emit(AuthFailure(e.toString()));
+    }
+  }
+  
+  // 7: THÊM HÀM XỬ LÝ MỚI
+  Future<void> _onUpdateProfileRequested(UpdateProfileRequested event, Emitter<AuthState> emit) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // 1. Cập nhật tên (nếu có)
+        if (event.displayName != null) {
+          await user.updateDisplayName(event.displayName);
+        }
+        // 2. Cập nhật ảnh (nếu có URL)
+        if (event.photoUrl != null) {
+          await user.updatePhotoURL(event.photoUrl);
+        }
+
+        // 3. Reload để Firebase đồng bộ dữ liệu mới nhất
+        await user.reload();
+        
+        // 4. Trigger lại sự kiện Check Auth để UI cập nhật lại toàn bộ state
+        add(AuthCheckRequested());
+      }
+    } catch (e) {
+      // Có thể emit AuthFailure nếu muốn hiện lỗi
+      print("Lỗi cập nhật profile: $e");
     }
   }
 }
