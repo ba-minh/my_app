@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+// 👇 1. IMPORT ENTITY ĐỂ ROUTER HIỂU KIỂU DỮ LIỆU
+import '../../domain/entities/device_entity.dart';
+
 // Import các màn hình
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/auth_screen.dart';
@@ -10,7 +13,6 @@ import '../../features/dashboard/presentation/screens/main_layout.dart';
 // Import các Tab con
 import '../../features/dashboard/presentation/tabs/home_tab.dart';
 import '../../features/dashboard/presentation/screens/cabinet_detail_screen.dart';
-// 👇 MỚI: Import Profile Screen
 import '../../features/dashboard/presentation/screens/profile_screen.dart';
 import '../../features/dashboard/presentation/screens/notification_screen.dart';
 import '../../features/dashboard/presentation/screens/calendar_screen.dart';
@@ -41,7 +43,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
 
-    // 4. CẤU HÌNH SHELL ROUTE
+    // 4. CẤU HÌNH SHELL ROUTE (Bottom Navigation Bar)
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainLayout(navigationShell: navigationShell);
@@ -58,15 +60,16 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'detail', 
                   builder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
+                    // 👇 SỬA LỖI TẠI ĐÂY: Ép kiểu về DeviceEntity
+                    final device = state.extra as DeviceEntity;
                     return CabinetDetailScreen(
-                      cabinetName: extra?['name'] ?? 'Tủ điều khiển',
+                      device: device,
                     );
                   },
                 ),
-                // 👇 MỚI: Route con Trang cá nhân
+                // Route con: Trang cá nhân (truy cập từ avatar ở Home)
                 GoRoute(
-                  path: 'profile-detail', // Đường dẫn: /dashboard/profile-detail
+                  path: 'profile-detail', 
                   builder: (context, state) => const ProfileScreen(),
                 ),
               ],
@@ -79,17 +82,17 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/calendar',
-              // Màn hình danh sách tủ (CalendarScreen)
               builder: (context, state) => const CalendarScreen(),
               routes: [
-                // Route con: Chi tiết lịch biểu của từng tủ
+                // Route con: Chi tiết lịch biểu
                 GoRoute(
-                  path: 'detail', // Đường dẫn đầy đủ: /calendar/detail
+                  path: 'detail', 
                   builder: (context, state) {
-                    // Lấy dữ liệu tủ được truyền sang
-                    final extra = state.extra as Map<String, dynamic>?;
+                    // 👇 SỬA LỖI TẠI ĐÂY: Cũng ép kiểu về DeviceEntity
+                    final device = state.extra as DeviceEntity;
+                    
                     return CabinetScheduleScreen(
-                      cabinetName: extra?['name'] ?? 'Tủ điện',
+                      cabinetName: device.name,
                     );
                   },
                 ),
@@ -103,7 +106,6 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/notifications',
-              // 👇 SỬA Ở ĐÂY: Thay Scaffold text bằng NotificationScreen
               builder: (context, state) => const NotificationScreen(),
             ),
           ],

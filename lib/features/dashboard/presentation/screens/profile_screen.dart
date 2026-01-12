@@ -8,6 +8,9 @@ import '../../../auth/presentation/blocs/auth_bloc.dart';
 import '../../../auth/presentation/blocs/auth_event.dart';
 import '../../../auth/presentation/blocs/auth_state.dart';
 
+// 👇 Import DeviceBloc để gọi lệnh Reset
+import '../blocs/device_bloc.dart'; 
+
 import '../widgets/detail_app_bar.dart';
 import '../widgets/logout_dialog.dart';
 
@@ -55,7 +58,13 @@ class ProfileScreen extends StatelessWidget {
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthInitial) context.go('/login');
+        if (state is AuthInitial) {
+          // 1. Gửi lệnh xóa sạch dữ liệu thiết bị cũ
+          context.read<DeviceBloc>().add(ResetDeviceEvent());
+
+          // 2. Sau đó mới chuyển về màn hình Login
+          context.go('/login');
+        }
       },
       builder: (context, state) {
         final user = FirebaseAuth.instance.currentUser;
@@ -66,10 +75,9 @@ class ProfileScreen extends StatelessWidget {
         return Scaffold(
           backgroundColor: AppColors.white,
           
-          // 👇 SỬ DỤNG DETAIL APP BAR
           appBar: DetailAppBar(
             title: "Trang cá nhân",
-            showBackButton: !isMainTab, // Ẩn nút back nếu là tab chính
+            showBackButton: !isMainTab, 
             onBackPressed: () => context.pop(),
           ),
           
@@ -153,6 +161,7 @@ class ProfileScreen extends StatelessWidget {
                 _buildOptionButton("Trợ giúp & Phản hồi"),
                 const SizedBox(height: 40),
 
+                // --- NÚT ĐĂNG XUẤT ---
                 SizedBox(
                   width: double.infinity,
                   height: 50,

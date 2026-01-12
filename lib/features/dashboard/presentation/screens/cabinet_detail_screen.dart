@@ -1,101 +1,194 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core_ui/theme/app_colors.dart';
+// 👇 Import Entity
+import '../../../../domain/entities/device_entity.dart'; 
 
 import '../widgets/sensor_card.dart';
 import '../widgets/io_device_card.dart';
 import '../widgets/detail_app_bar.dart';
-import '../widgets/dashboard_fab.dart'; 
+import '../widgets/dashboard_fab.dart';
+import '../widgets/add_edit_device_sheet.dart'; 
+import '../widgets/device_option_sheet.dart';   
+import '../blocs/device_bloc.dart';
 
 class CabinetDetailScreen extends StatefulWidget {
-  final String cabinetName;
-
-  const CabinetDetailScreen({super.key, required this.cabinetName});
+  // 👇 Thay đổi: Nhận vào cả Object Device thay vì chỉ tên
+  final DeviceEntity device;
+  
+  const CabinetDetailScreen({super.key, required this.device});
 
   @override
   State<CabinetDetailScreen> createState() => _CabinetDetailScreenState();
 }
 
 class _CabinetDetailScreenState extends State<CabinetDetailScreen> {
-  final List<Map<String, dynamic>> _ioDevices = [
-    {'name': 'Đầu ra 1', 'isOn': false},
-    {'name': 'Đầu ra 2', 'isOn': true},
-    {'name': 'Đầu ra 3', 'isOn': false},
-    {'name': 'Đầu ra 4', 'isOn': false},
-  ];
+  
+  // 👇 INIT STATE: GỌI SỰ KIỆN SELECT DEVICE KHI MỞ MÀN HÌNH
+  @override
+  void initState() {
+    super.initState();
+    // Gửi dữ liệu tủ vừa chọn vào Bloc để Bloc tách (Mapping) ra Sensors và IO
+    context.read<DeviceBloc>().add(SelectDevice(widget.device));
+  }
+
+  // --- LOGIC 1: MỞ FORM THÊM/SỬA ---
+  void _openAddEditSheet({int? index, String? type}) {
+    final state = context.read<DeviceBloc>().state;
+    Map<String, dynamic>? currentData;
+    if (index != null && type != null) {
+      currentData = type == 'device' ? state.uiIODevices[index] : state.uiSensors[index];
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => AddEditDeviceSheet(
+        index: index,
+        data: currentData,
+        onConfirm: (result) {
+          final newData = result['data'];
+          final resultType = result['type']; 
+
+          if (index != null) {
+            context.read<DeviceBloc>().add(UpdateDeviceItem(index: index, newData: newData, type: resultType));
+          } else {
+            if (resultType == 'device') {
+              if (newData['name'] == "Đầu ra Mới") newData['name'] = "Đầu ra Mới";
+            } else {
+              if (newData['title'] == "Cảm biến Mới") newData['title'] = "Cảm biến Mới";
+            }
+            context.read<DeviceBloc>().add(AddDeviceItem(newData, resultType));
+          }
+        },
+      ),
+    );
+  }
+
+  // --- LOGIC 2: MENU TÙY CHỌN ---
+  void _showOptions(int index, String type) {
+    final state = context.read<DeviceBloc>().state;
+    final bool isDevice = type == 'device';
+    final name = isDevice ? state.uiIODevices[index]['name'] : state.uiSensors[index]['title'];
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => DeviceOptionSheet(
+        name: name,
+        onEdit: () => _openAddEditSheet(index: index, type: type),
+        onDelete: () => _showDeleteConfirm(index, name, type),
+      ),
+    );
+  }
+
+  // --- LOGIC 3: XÁC NHẬN XÓA ---
+  void _showDeleteConfirm(int index, String name, String type) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Xác nhận xóa"),
+        content: Text("Bạn có chắc muốn xóa '$name'?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy", style: TextStyle(color: Colors.grey))),
+          TextButton(
+            onPressed: () {
+              context.read<DeviceBloc>().add(DeleteDeviceItem(index, type));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Đã xóa $name")));
+            },
+            child: const Text("Xóa", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      // 👇 Sửa: Lấy tên từ widget.device.name
+      appBar: DetailAppBar(title: widget.device.name),
       
-      appBar: DetailAppBar(
-        title: widget.cabinetName,
-      ),
+      body: BlocBuilder<DeviceBloc, DeviceState>(
+        builder: (context, state) {
+          final sensors = state.uiSensors;
+          final ioDevices = state.uiIODevices;
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // SECTION: CẢM BIẾN
-            const Text("Cảm biến môi trường", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 100,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: const [
-                  SensorCard(title: "Nhiệt độ (CB1)", value: "24", unit: "°C"),
-                  SensorCard(title: "Nhiệt độ (CB2)", value: "29", unit: "°C"),
-                  SensorCard(title: "Độ ẩm", value: "70", unit: "%"),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // --- SECTION: CẢM BIẾN ---
+                if (sensors.isNotEmpty) ...[
+                   Text("Cảm biến môi trường", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                   const SizedBox(height: 12),
+                   SizedBox(
+                    height: 110,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: sensors.length,
+                        itemBuilder: (context, index) {
+                          final sensor = sensors[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12.0),
+                            child: InkWell(
+                              onLongPress: () => _showOptions(index, 'sensor'),
+                              borderRadius: BorderRadius.circular(12),
+                              child: SensorCard(
+                                title: sensor['title'],
+                                value: sensor['value'],
+                                unit: sensor['unit'],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                   ),
+                   const SizedBox(height: 24),
                 ],
-              ),
+
+                // --- SECTION: THIẾT BỊ I/O ---
+                if (ioDevices.isNotEmpty) ...[
+                  Text("Thiết bị trong trang trại", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: ioDevices.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1.1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final device = ioDevices[index];
+                      return InkWell(
+                        onLongPress: () => _showOptions(index, 'device'),
+                        borderRadius: BorderRadius.circular(20),
+                        child: IODeviceCard(
+                          name: device['name'],
+                          isOn: device['isOn'],
+                          deviceIcon: device['icon'] ?? Icons.devices,
+                          onTap: () {
+                            context.read<DeviceBloc>().add(ToggleDeviceStatus(index));
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+                const SizedBox(height: 100),
+              ],
             ),
-
-            const SizedBox(height: 24),
-
-            // SECTION: THIẾT BỊ IO
-            const Text("Thiết bị trong trang trại", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _ioDevices.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.1,
-              ),
-              itemBuilder: (context, index) {
-                return IODeviceCard(
-                  name: _ioDevices[index]['name'],
-                  isOn: _ioDevices[index]['isOn'],
-                  onTap: () {
-                    setState(() {
-                      _ioDevices[index]['isOn'] = !_ioDevices[index]['isOn'];
-                    });
-                  },
-                );
-              },
-            ),
-            
-            // Padding dưới để không bị FAB che mất
-            const SizedBox(height: 100), 
-          ],
-        ),
-      ),
-
-      // 👇 Dùng DashboardFab thay vì nút mặc định để đồng bộ thiết kế
-      floatingActionButton: DashboardFab(
-        onPressed: () {
-          setState(() {
-            _ioDevices.add({'name': 'Đầu ra ${_ioDevices.length + 1}', 'isOn': false});
-          });
+          );
         },
       ),
       
-      // 👇 Vị trí đồng bộ: Góc dưới bên phải
+      floatingActionButton: DashboardFab(
+        onPressed: () => _openAddEditSheet(), 
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

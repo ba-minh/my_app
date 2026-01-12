@@ -4,18 +4,29 @@ import '../../../../core_ui/theme/app_colors.dart';
 class DeviceCard extends StatelessWidget {
   final String name;
   final IconData icon;
+  final bool isOnline; // 👇 THÊM: Trạng thái kết nối
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+
   const DeviceCard({
     super.key,
     required this.name,
     required this.icon,
+    required this.isOnline, // 👇 Bắt buộc truyền vào
     required this.onTap,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Xác định màu sắc dựa trên trạng thái
+    final statusColor = isOnline ? AppColors.primary : Colors.grey;
+    final statusText = isOnline ? "Đang kết nối" : "Mất kết nối";
+    final statusTextColor = isOnline ? Colors.green : Colors.grey;
+
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
@@ -33,18 +44,18 @@ class DeviceCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon to đại diện cho Tủ
+            // Icon tròn
             Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: statusColor.withOpacity(0.1), // Nền nhạt theo màu trạng thái
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: AppColors.primary, size: 32),
+              child: Icon(icon, color: statusColor, size: 32), // Icon theo màu trạng thái
             ),
             const SizedBox(height: 12),
             
-            // Tên tủ
+            // Tên thiết bị
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
@@ -59,13 +70,12 @@ class DeviceCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            
             const SizedBox(height: 4),
             
-            // Trạng thái (Giả lập)
-            const Text(
-              "Đang kết nối",
-              style: TextStyle(fontSize: 12, color: Colors.green),
+            // Trạng thái text
+            Text(
+              statusText, // Hiện "Đang kết nối" hoặc "Mất kết nối"
+              style: TextStyle(fontSize: 12, color: statusTextColor),
             ),
           ],
         ),

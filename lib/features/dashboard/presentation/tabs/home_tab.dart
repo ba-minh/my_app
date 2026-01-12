@@ -3,44 +3,69 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core_ui/theme/app_colors.dart';
+import '../../../../domain/entities/device_entity.dart';
 import '../widgets/device_card.dart';
-
 import '../widgets/dashboard_app_bar.dart';
-
 import '../blocs/device_bloc.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
+  void _showDeleteDialog(BuildContext context, int index, String deviceName) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text("Xóa tủ điện?", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text("Bạn có chắc chắn muốn xóa tủ điện:\n'$deviceName' không?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<DeviceBloc>().add(DeleteDeviceItem(index, 'cabinet')); 
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Đã xóa $deviceName")),
+                );
+              },
+              child: const Text("Xóa", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      
-      // 👇 SỬA LOGIC: Bấm Avatar -> Chuyển sang màn hình Profile chi tiết
       appBar: DashboardAppBar(
         onAvatarTap: () {
-          // Dùng context.push để có thể back lại
           context.push('/dashboard/profile-detail');
         }, 
       ),
-
       body: SafeArea(
         child: BlocBuilder<DeviceBloc, DeviceState>(
           builder: (context, state) {
-            
-            if (state.devices.isEmpty) {
-              return _buildEmptyState();
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
             }
 
-            return _buildDeviceList(context, state.devices);
+            if (state.userDevices.isEmpty) {
+              return _buildEmptyState();
+            }
+            return _buildDeviceList(context, state.userDevices);
           },
         ),
       ),
     );
   }
 
-  // --- GIỮ NGUYÊN CODE DƯỚI ĐÂY ---
   Widget _buildEmptyState() {
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
@@ -50,7 +75,7 @@ class HomeTab extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.sensors_off_rounded, size: 80, color: AppColors.grey.withOpacity(0.5)),
+                Icon(Icons.kitchen, size: 80, color: AppColors.grey.withOpacity(0.5)),
                 const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -68,7 +93,7 @@ class HomeTab extends StatelessWidget {
     });
   }
 
-  Widget _buildDeviceList(BuildContext context, List<Map<String, dynamic>> devices) {
+  Widget _buildDeviceList(BuildContext context, List<DeviceEntity> devices) {
     final width = MediaQuery.of(context).size.width;
     final int crossAxisCount = width < 600 ? 2 : 3;
 
@@ -95,11 +120,21 @@ class HomeTab extends StatelessWidget {
               itemBuilder: (context, index) {
                 final device = devices[index];
                 
+                // Logic Online/Offline (1 là Online)
+                final bool isOnline = device.status == 1;
+
                 return DeviceCard(
-                  name: device['name'],
-                  icon: device['icon'], 
+                  name: device.name, 
+                  // Chọn Icon Wifi hoặc Wifi gạch chéo
+                  icon: isOnline ? Icons.wifi : Icons.wifi_off,
+                  // 👇 TRUYỀN TRẠNG THÁI VÀO ĐÂY ĐỂ ĐỔI MÀU & CHỮ
+                  isOnline: isOnline, 
+                  
                   onTap: () {
                     context.go('/dashboard/detail', extra: device);
+                  },
+                  onLongPress: () {
+                    _showDeleteDialog(context, index, device.name);
                   },
                 );
               },

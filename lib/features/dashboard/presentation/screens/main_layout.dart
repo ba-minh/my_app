@@ -11,7 +11,8 @@ import '../widgets/dashboard_fab.dart';
 import 'add_device_screen.dart';
 import '../blocs/device_bloc.dart';
 
-class MainLayout extends StatelessWidget {
+// 👇 CHUYỂN THÀNH STATEFUL WIDGET ĐỂ DÙNG INITSTATE
+class MainLayout extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainLayout({
@@ -19,10 +20,27 @@ class MainLayout extends StatelessWidget {
     required this.navigationShell,
   });
 
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  
+  // 👇 GỌI LỆNH LOAD DỮ LIỆU KHI MÀN HÌNH ĐƯỢC TẠO
+  @override
+  void initState() {
+    super.initState();
+    // Kiểm tra: Nếu danh sách tủ đang trống (do vừa đăng nhập lại) thì tải lại
+    final deviceBloc = context.read<DeviceBloc>();
+    if (deviceBloc.state.userDevices.isEmpty) {
+      deviceBloc.add(LoadDevices());
+    }
+  }
+
   void _onTabSelected(int index) {
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
@@ -33,35 +51,26 @@ class MainLayout extends StatelessWidget {
       MaterialPageRoute(builder: (context) => const AddDeviceScreen())
     );
     if (result != null && result is Map<String, dynamic>) {
-      context.read<DeviceBloc>().add(AddDeviceEvent(result));
+      // 👇 SỬA QUAN TRỌNG: Gửi type là 'cabinet' (Tủ điện)
+      context.read<DeviceBloc>().add(AddDeviceItem(result, 'cabinet'));
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Đã thêm tủ thành công!"), backgroundColor: AppColors.primary),
       );
     }
   }
 
-  // Chức năng 2: Thêm Lịch (Calendar)
-  void _onAddSchedule(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Chức năng thêm lịch đang phát triển")),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Lấy đường dẫn hiện tại
     final String location = GoRouterState.of(context).uri.toString();
 
     VoidCallback? fabAction;
     bool showFab = false;
 
-    // 👇 LOGIC QUYẾT ĐỊNH FAB THEO MÀN HÌNH
     if (location == '/dashboard') {
-      // 1. Home -> Hiện nút thêm Tủ
       showFab = true;
       fabAction = () => _onAddDevice(context);
     }
-    // Các trường hợp khác (Detail, Notify, Profile...) -> showFab = false -> Ẩn FAB cha
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -72,18 +81,16 @@ class MainLayout extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.background, 
 
-        body: navigationShell,
+        body: widget.navigationShell, // Dùng widget.navigationShell
 
-        // FAB
         floatingActionButton: showFab 
             ? DashboardFab(onPressed: fabAction!)
             : null,
         
-        // 👇 VỊ TRÍ MỚI: Góc dưới bên phải (EndFloat)
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
         bottomNavigationBar: DashboardBottomBar(
-          currentIndex: navigationShell.currentIndex,
+          currentIndex: widget.navigationShell.currentIndex,
           onTap: _onTabSelected,
         ),
       ),
