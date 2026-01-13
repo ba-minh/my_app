@@ -1,0 +1,37 @@
+import '../../models/device_model.dart';
+
+abstract class DeviceRemoteDataSource {
+  Future<List<DeviceModel>> getUserDevices();
+}
+
+class DeviceMockDataSourceImpl implements DeviceRemoteDataSource {
+  @override
+  Future<List<DeviceModel>> getUserDevices() async {
+    // Giả lập trễ mạng 1 giây để test hiệu ứng Loading
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Trả về dữ liệu giả y hệt cấu trúc trong PDF 
+    return [
+      const DeviceModel(
+        id: "4234235423",
+        name: "Tủ Bơm 1 (Vườn Lan)",
+        status: 1, // Online
+        relays: [1, 1, 0, 1, 0], // Relay 1 & 4 đang bật
+        inputs: [0, 1, 0],       // Input 2 đang kích hoạt
+        temps: [28.6, 30.0],
+        hums: [64.2, 61.7],
+        timestamp: 1762591262,
+      ),
+      const DeviceModel(
+        id: "999888777",
+        name: "Tủ Quạt (Nhà Kính)",
+        status: 0, // Offline
+        relays: [0, 0, 0, 0],
+        inputs: [0, 0],
+        temps: [], // Không có cảm biến thì để rỗng
+        hums: [],
+        timestamp: 1762590000,
+      ),
+    ];
+  }
+}

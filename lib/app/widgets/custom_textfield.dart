@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 class CustomTextField extends StatefulWidget {
   final String label;
   final String placeholder;
-  final bool isPassword; // Đây là biến xác định xem ô này có phải là mật khẩu không
+  final bool isPassword;
   final TextEditingController controller;
+  
+  // 👇 1. THÊM THAM SỐ MỚI
+  final Iterable<String>? autofillHints; 
+  final TextInputType? keyboardType;
+  final VoidCallback? onEditingComplete;
 
   const CustomTextField({
     super.key,
@@ -12,6 +17,10 @@ class CustomTextField extends StatefulWidget {
     required this.placeholder,
     this.isPassword = false,
     required this.controller,
+    // 👇 2. THÊM VÀO CONSTRUCTOR
+    this.autofillHints,
+    this.keyboardType,
+    this.onEditingComplete,
   });
 
   @override
@@ -19,39 +28,49 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  // Biến nội bộ để theo dõi trạng thái ẩn/hiện
   bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: widget.controller,
-          // Nếu là password thì dùng biến _obscureText, nếu không thì luôn hiện (false)
           obscureText: widget.isPassword ? _obscureText : false,
+          
+          // 👇 3. TRUYỀN THAM SỐ XUỐNG TEXTFIELD
+          autofillHints: widget.autofillHints,
+          keyboardType: widget.keyboardType ?? (widget.isPassword 
+              ? TextInputType.visiblePassword 
+              : TextInputType.emailAddress), // Mặc định thông minh
+
+          onEditingComplete: widget.onEditingComplete,
+          
           decoration: InputDecoration(
             hintText: widget.placeholder,
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            
-            // LOGIC CON MẮT Ở ĐÂY
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
-                      // Chọn icon dựa trên trạng thái
                       _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: Colors.grey,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () {
-                      // Khi bấm vào thì đảo ngược trạng thái (Ẩn -> Hiện -> Ẩn)
                       setState(() {
                         _obscureText = !_obscureText;
                       });
