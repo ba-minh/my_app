@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; 
 
+import 'core_ui/theme/app_theme.dart';
 import 'app/di/dependency_injection.dart' as di;
 import 'app/di/dependency_injection.dart'; 
 import 'app/router/app_router.dart';
+
+// Import Blocs
 import 'features/auth/presentation/blocs/auth_bloc.dart'; 
-// 👇 1. Cần import thêm file Event để dùng được AuthCheckRequested
 import 'features/auth/presentation/blocs/auth_event.dart'; 
+import 'features/dashboard/presentation/blocs/device_bloc.dart'; // Import DeviceBloc
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,21 +26,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // 1. Auth Bloc
         BlocProvider<AuthBloc>(
-          // 👇 2. SỬA DÒNG NÀY: Thêm 2 dấu chấm và lệnh add()
           create: (_) => sl<AuthBloc>()..add(AuthCheckRequested()),
+        ),
+
+        // 2. Device Bloc (Nhà kho thiết bị)
+        // 👇 SỬA: Dùng sl<DeviceBloc>() để lấy từ DI (đã có UseCase bên trong)
+        // và gọi LoadDevices() ngay lập tức để lấy dữ liệu giả.
+        BlocProvider<DeviceBloc>(
+          create: (context) => sl<DeviceBloc>()..add(LoadDevices()),
         ),
       ],
       child: MaterialApp.router(
         title: 'IoT Farm App',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF055B1D)),
-          useMaterial3: true,
-          textTheme: GoogleFonts.interTextTheme(
-            Theme.of(context).textTheme, 
-          ),
-        ),
+        theme: AppTheme.lightTheme,
         routerConfig: appRouter,
       ),
     );
