@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Thư viện lưu trữ
 
 // --- Auth Imports ---
 import '../../data/datasources/remote/auth_remote_datasource.dart';
@@ -15,23 +16,29 @@ import '../../domain/usecases/check_auth_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 
 // --- Device (IoT) Imports ---
-import '../../data/datasources/remote/device_mock_datasource.dart'; // Import Mock Data
+import '../../data/datasources/remote/device_mock_datasource.dart'; 
+import '../../data/datasources/local/device_local_datasource.dart'; // Import Local DS
 import '../../data/repositories/device_repository_impl.dart';
 import '../../domain/repositories/device_repository.dart';
 import '../../domain/usecases/get_user_devices_usecase.dart'; 
-import '../../features/dashboard/presentation/blocs/device_bloc.dart'; // ✅ ĐÃ BỎ COMMENT
+import '../../features/dashboard/presentation/blocs/device_bloc.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   // ==========================
-  // 1. EXTERNAL (Firebase)
+  // 0. CORE / EXTERNAL
   // ==========================
+  // Firebase
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
+  
+  // [MỚI] SharedPreferences (Lưu ý: Phải dùng await)
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
 
   // ==========================
-  // 2. FEATURE: AUTH
+  // 1. FEATURE: AUTH
   // ==========================
   
   // Data Source
@@ -66,24 +73,32 @@ Future<void> init() async {
       ));
 
   // ==========================
-  // 3. FEATURE: DEVICE (IoT)
+  // 2. FEATURE: DEVICE (IoT)
   // ==========================
 
-  // Data Source
-  // Lưu ý: Đang dùng MockDataSourceImpl. Khi nào có Backend thật thì đổi thành DeviceRemoteDataSourceImpl
+  // --- Data Source ---
+  // Remote (Mock/API)
   sl.registerLazySingleton<DeviceRemoteDataSource>(
     () => DeviceMockDataSourceImpl(),
   );
 
-  // Repository
-  sl.registerLazySingleton<DeviceRepository>(
-    () => DeviceRepositoryImpl(remoteDataSource: sl()),
+  // [MỚI] Local (Cache)
+  sl.registerLazySingleton<DeviceLocalDataSource>(
+    () => DeviceLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
-  // Use Cases
+  // --- Repository ---
+  // [CẬP NHẬT] Tiêm cả Remote và Local vào Repository
+  sl.registerLazySingleton<DeviceRepository>(
+    () => DeviceRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(), // Thêm dòng này
+    ),
+  );
+
+  // --- Use Cases ---
   sl.registerLazySingleton(() => GetUserDevicesUseCase(sl()));
 
-  // Blocs
-  // ✅ ĐÃ BỎ COMMENT: Đăng ký Bloc để sử dụng ở UI
+  // --- Blocs ---
   sl.registerFactory(() => DeviceBloc(getUserDevicesUseCase: sl())); 
 }
