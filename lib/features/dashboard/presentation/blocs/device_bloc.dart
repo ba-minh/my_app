@@ -37,20 +37,20 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
       // A. Mapping Sensors (Nhiệt độ, Độ ẩm)
       final List<Map<String, dynamic>> mappedSensors = [];
       
-      // Nếu temps = [28.6, 30.0] -> Chạy 2 vòng
-      for (int i = 0; i < device.temps.length; i++) {
+      // Nếu temp = [28.6, 30.0] -> Chạy 2 vòng
+      for (int i = 0; i < device.temp.length; i++) {
         mappedSensors.add({
           'title': 'Nhiệt độ (CB${i + 1})', // Tự đặt tên: CB1, CB2...
-          'value': '${device.temps[i]}',
+          'value': '${device.temp[i]}',
           'unit': '°C'
         });
       }
 
       // 👇 LOGIC MỚI: DUYỆT DANH SÁCH ĐỘ ẨM
-      for (int i = 0; i < device.hums.length; i++) {
+      for (int i = 0; i < device.hum.length; i++) {
         mappedSensors.add({
           'title': 'Độ ẩm (CB${i + 1})',
-          'value': '${device.hums[i]}',
+          'value': '${device.hum[i]}',
           'unit': '%'
         });
       }
@@ -82,7 +82,7 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
         final newCabinet = DeviceEntity(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: event.deviceData['name'] ?? 'Tủ mới',
-          status: 1, relays: [0, 0, 0, 0], inputs: [0, 0], temps: [0.0], hums: [0.0],
+          status: 1, relays: [0, 0, 0, 0], inputs: [0, 0], temp: [0.0], hum: [0.0],
           timestamp: DateTime.now().millisecondsSinceEpoch,
         );
         final updatedList = List<DeviceEntity>.from(state.userDevices);

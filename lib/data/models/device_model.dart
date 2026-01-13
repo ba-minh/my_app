@@ -7,8 +7,8 @@ class DeviceModel extends DeviceEntity {
     required int status,
     required List<int> relays,
     required List<int> inputs,
-    required List<double> temps,
-    required List<double> hums,
+    required List<double> temp,
+    required List<double> hum,
     required int timestamp,
   }) : super(
           id: id,
@@ -16,8 +16,8 @@ class DeviceModel extends DeviceEntity {
           status: status,
           relays: relays,
           inputs: inputs,
-          temps: temps,
-          hums: hums,
+          temp: temp,
+          hum: hum,
           timestamp: timestamp,
         );
 
@@ -28,14 +28,14 @@ class DeviceModel extends DeviceEntity {
       name: json['name'] ?? 'Tủ điều khiển ${json['device_id'] ?? ''}', // Tự đặt tên nếu server chưa trả về
       status: json['status'] ?? 0,
       // Chuyển đổi mảng dynamic sang List<int> an toàn
-      relays: List<int>.from(json['relay'] ?? []), 
-      inputs: List<int>.from(json['input'] ?? []),
+      relays: List<int>.from(json['relays'] ?? []), 
+      inputs: List<int>.from(json['inputs'] ?? []),
       // Xử lý số thực an toàn (tránh lỗi int/double lẫn lộn)
-      temps: (json['temp'] as List<dynamic>?)
+      temp: (json['temp'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ?? [],
 
-      hums: (json['hum'] as List<dynamic>?)
+      hum: (json['hum'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ?? [],
       timestamp: json['timestamp'] ?? 0,
@@ -46,11 +46,12 @@ class DeviceModel extends DeviceEntity {
   Map<String, dynamic> toJson() {
     return {
       'device_id': id,
+      'name': name,
       'status': status,
-      'relay': relays,
-      'input': inputs,
-      'temp': temps,
-      'hum': hums,
+      'relays': relays,
+      'inputs': inputs,
+      'temp': temp,
+      'hum': hum,
       'timestamp': timestamp,
     };
   }
