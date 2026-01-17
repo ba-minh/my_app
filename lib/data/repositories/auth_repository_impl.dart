@@ -13,22 +13,38 @@ class AuthRepositoryImpl implements AuthRepository {
     return await remoteDataSource.signIn(email, password);
   }
 
-  // Đăng ký (MỚI)
+  // Đăng ký
   @override
   Future<UserEntity> signUp(String email, String password) async {
     return await remoteDataSource.signUp(email, password);
   }
 
-  // Quên mật khẩu (MỚI)
+  // Quên mật khẩu
   @override
   Future<void> resetPassword(String email) async {
     return await remoteDataSource.resetPassword(email);
   }
 
-  // Hai hàm phụ trợ (Tạm thời để trống hoặc false như cũ)
+  // Đăng nhập bằng Google
+  @override
+  Future<UserEntity> signInWithGoogle() async {
+    return await remoteDataSource.signInWithGoogle();
+  }
+
+  // 👇 ĐĂNG XUẤT (ĐÃ SỬA)
+  // Gọi xuống DataSource để clear cả Google và Firebase
+  @override
+  Future<void> signOut() async {
+    return await remoteDataSource.signOut();
+  }
+
+  // 👇 LẤY USER HIỆN TẠI (MỚI)
+  @override
+  Future<UserEntity?> getCurrentUser() async {
+    return await remoteDataSource.getCurrentUser();
+  }
+
+  // Hàm phụ trợ cũ (giữ nguyên hoặc return false cũng được)
   @override
   Future<bool> isSignedIn() async => false; 
-
-  @override
-  Future<void> signOut() async {} 
 }

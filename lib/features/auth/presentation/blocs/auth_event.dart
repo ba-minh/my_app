@@ -31,3 +31,23 @@ class ResetPasswordRequested extends AuthEvent {
   @override
   List<Object> get props => [email];
 }
+
+// 4. Sự kiện Đăng nhập bằng Google
+class GoogleSignInRequested extends AuthEvent {}
+
+// 👇 5. Sự kiện Tự động kiểm tra đăng nhập (Khi mở App)
+class AuthCheckRequested extends AuthEvent {}
+
+// 👇 6. Sự kiện Đăng xuất
+class SignOutRequested extends AuthEvent {}
+
+// 👇 7. Sự kiện cập nhật hồ sơ (Tên hoặc Ảnh)
+class UpdateProfileRequested extends AuthEvent {
+  final String? displayName;
+  final String? photoUrl;
+
+  const UpdateProfileRequested({this.displayName, this.photoUrl});
+
+  @override
+  List<Object> get props => [displayName ?? '', photoUrl ?? ''];
+}

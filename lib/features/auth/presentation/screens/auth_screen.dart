@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core_ui/theme/app_colors.dart';
 import 'login_screen.dart'; 
 import 'sign_up_screen.dart'; 
 
@@ -11,6 +12,7 @@ class AuthScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2, 
       child: Scaffold(
+        backgroundColor: AppColors.white,
         body: SafeArea(
           child: Column(
             children: [
@@ -27,9 +29,9 @@ class AuthScreen extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 50),
                 child: TabBar(
-                  labelColor: Color(0xFF1E5128), 
-                  unselectedLabelColor: Colors.grey, 
-                  indicatorColor: Color(0xFF1E5128), 
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: AppColors.grey,
+                  indicatorColor: AppColors.primary,
                   indicatorWeight: 3,
                   labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   tabs: [
