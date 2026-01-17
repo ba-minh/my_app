@@ -22,11 +22,11 @@ class IODeviceCard extends StatelessWidget {
       curve: Curves.easeInOut,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(20),
         // Viền xanh khi bật
         border: Border.all(
-          color: isOn ? AppColors.primary : Colors.transparent, 
+          color: isOn ? AppColors.primary : AppColors.transparent, 
           width: 2,
         ),
         boxShadow: [
@@ -34,7 +34,7 @@ class IODeviceCard extends StatelessWidget {
             // Đổ bóng xanh khi bật
             color: isOn 
                 ? AppColors.primary.withOpacity(0.15) 
-                : Colors.black.withOpacity(0.05),
+                : AppColors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -52,19 +52,19 @@ class IODeviceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isOn ? AppColors.primary.withOpacity(0.1) : const Color(0xFFF5F5F5),
+                  color: isOn ? AppColors.primary.withOpacity(0.1) : AppColors.background,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   deviceIcon,
-                  color: isOn ? AppColors.primary : Colors.grey,
+                  color: isOn ? AppColors.primary : AppColors.grey,
                   size: 24,
                 ),
               ),
 
               // 2. Nút nguồn tròn (Bên phải - Code cũ của bạn)
               Material(
-                color: Colors.transparent,
+                color: AppColors.transparent,
                 child: InkWell(
                   onTap: onTap,
                   customBorder: const CircleBorder(),
@@ -74,11 +74,11 @@ class IODeviceCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       // Logic màu: Bật -> Xanh, Tắt -> Xám nhạt
-                      color: isOn ? AppColors.primary : const Color(0xFFE0E0E0),
+                      color: isOn ? AppColors.primary : AppColors.grey300,
                     ),
                     child: const Icon(
                       Icons.power_settings_new,
-                      color: Colors.white, // Icon nguồn luôn màu trắng cho nổi
+                      color: AppColors.white, // Icon nguồn luôn màu trắng cho nổi
                       size: 24,
                     ),
                   ),
@@ -95,7 +95,7 @@ class IODeviceCard extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.bold, 
               fontSize: 16,
-              color: Colors.black87,
+              color: AppColors.black87,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -108,7 +108,7 @@ class IODeviceCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isOn ? AppColors.primary : Colors.grey,
+              color: isOn ? AppColors.primary : AppColors.grey,
             ),
           ),
         ],

@@ -32,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+            child: const Text("Hủy", style: TextStyle(color: AppColors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -44,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text("Lưu", style: TextStyle(color: Colors.white)),
+            child: const Text("Lưu", style: TextStyle(color: AppColors.white)),
           ),
         ],
       ),
@@ -139,7 +139,7 @@ class ProfileScreen extends StatelessWidget {
                       onTap: () => _showEditNameDialog(context, displayName),
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        color: Colors.transparent, 
+                        color: AppColors.transparent, 
                         child: const Icon(Icons.edit, size: 20, color: AppColors.grey),
                       ),
                     ),
@@ -181,7 +181,7 @@ class ProfileScreen extends StatelessWidget {
                     child: const Text(
                       "Đăng xuất",
                       style: TextStyle(
-                        color: Colors.red,
+                        color: AppColors.error,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -201,7 +201,7 @@ class ProfileScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5), 
+        color: AppColors.background, 
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primary), 
       ),
@@ -210,9 +210,9 @@ class ProfileScreen extends StatelessWidget {
         children: [
           Text(
             text,
-            style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, color: AppColors.black87, fontWeight: FontWeight.w500),
           ),
-          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.grey),
         ],
       ),
     );

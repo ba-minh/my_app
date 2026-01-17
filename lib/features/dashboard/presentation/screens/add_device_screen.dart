@@ -29,23 +29,23 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.black,
+        decoration: BoxDecoration(
+          color: AppColors.black,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           children: [
             AppBar(
-              backgroundColor: Colors.transparent,
+              backgroundColor: AppColors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: const Icon(Icons.close, color: AppColors.white),
                 onPressed: () => Navigator.pop(context),
               ),
-              title: const Text("Quét mã QR trên tủ", style: TextStyle(color: Colors.white)),
+              title: const Text("Quét mã QR trên tủ", style: TextStyle(color: AppColors.white)),
               centerTitle: true,
             ),
             Expanded(
@@ -69,11 +69,11 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                 },
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(20.0),
               child: Text(
                 "Di chuyển camera đến mã QR dán trên tủ điều khiển",
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: AppColors.white.withOpacity(0.7)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -86,16 +86,16 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text("Thêm tủ điện mới",
-            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+            style: TextStyle(color: AppColors.black, fontSize: 18, fontWeight: FontWeight.bold)),
       ),
       body: SafeArea(
         child: Padding(
@@ -105,7 +105,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
             children: [
               // --- FORM NHẬP LIỆU ---
               const Text("Thông tin thiết bị",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.black87)),
               const SizedBox(height: 15),
 
               // 1. Ô nhập tên tủ
@@ -113,10 +113,10 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: "Tên tủ điện (VD: Tủ vườn ươm 1)",
-                  prefixIcon: const Icon(Icons.edit_note, color: Colors.grey),
+                  prefixIcon: const Icon(Icons.edit_note, color: AppColors.grey),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   filled: true,
-                  fillColor: Colors.grey[50],
+                  fillColor: AppColors.background,
                 ),
               ),
               const SizedBox(height: 20),
@@ -127,7 +127,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                 decoration: InputDecoration(
                   labelText: "Mã thiết bị (Device ID)",
                   hintText: "Nhập thủ công hoặc quét mã",
-                  prefixIcon: const Icon(Icons.qr_code, color: Colors.grey),
+                  prefixIcon: const Icon(Icons.qr_code, color: AppColors.grey),
                   suffixIcon: IconButton(
                     onPressed: _openQRScanner, // Gọi hàm mở camera
                     icon: const Icon(Icons.center_focus_strong, color: AppColors.primary),
@@ -135,7 +135,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                   ),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   filled: true,
-                  fillColor: Colors.grey[50],
+                  fillColor: AppColors.background,
                 ),
               ),
 
@@ -168,7 +168,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text("Kết nối & Thêm",
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

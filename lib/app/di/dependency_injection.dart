@@ -19,6 +19,7 @@ import '../../domain/usecases/sign_out_usecase.dart';
 import '../../data/datasources/remote/device_mock_datasource.dart'; 
 import '../../data/datasources/local/device_local_datasource.dart'; // Import Local DS
 import '../../data/repositories/device_repository_impl.dart';
+import '../../data/datasources/local/command_queue_local_datasource.dart';
 import '../../domain/repositories/device_repository.dart';
 import '../../domain/usecases/get_user_devices_usecase.dart'; 
 import '../../features/dashboard/presentation/blocs/device_bloc.dart';
@@ -64,13 +65,18 @@ Future<void> init() async {
 
   // Blocs
   sl.registerFactory(() => AuthBloc(
-        signInUseCase: sl(),
-        signUpUseCase: sl(),
-        resetPasswordUseCase: sl(),
-        signInGoogleUseCase: sl(),
-        checkAuthUseCase: sl(),
-        signOutUseCase: sl(),
-      ));
+      signInUseCase: sl(),
+      signUpUseCase: sl(),
+      resetPasswordUseCase: sl(),
+      signInGoogleUseCase: sl(),
+      checkAuthUseCase: sl(),
+      signOutUseCase: sl(),
+    )
+  );
+  // Command Queue Local (Store & Forward)
+  sl.registerLazySingleton<CommandQueueLocalDataSource>(
+    () => CommandQueueLocalDataSourceImpl(sharedPreferences: sl()),
+  );
 
   // ==========================
   // 2. FEATURE: DEVICE (IoT)

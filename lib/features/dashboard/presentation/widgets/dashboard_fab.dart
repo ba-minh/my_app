@@ -25,7 +25,7 @@ class DashboardFab extends StatelessWidget {
               width: 32,
               height: 7, 
               decoration: BoxDecoration(
-                color: Colors.white, // 👇 Đổi thành màu trắng
+                color: AppColors.white, // 👇 Đổi thành màu trắng
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -34,7 +34,7 @@ class DashboardFab extends StatelessWidget {
               width: 7, 
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white, // 👇 Đổi thành màu trắng
+                color: AppColors.white, // 👇 Đổi thành màu trắng
                 borderRadius: BorderRadius.circular(4),
               ),
             ),

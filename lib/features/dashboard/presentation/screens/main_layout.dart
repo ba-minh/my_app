@@ -6,6 +6,7 @@ import '../../../auth/presentation/blocs/auth_bloc.dart';
 import '../../../auth/presentation/blocs/auth_state.dart';
 import '../../../../core_ui/theme/app_colors.dart';
 
+
 import '../widgets/dashboard_bottom_bar.dart';
 import '../widgets/dashboard_fab.dart';
 import 'add_device_screen.dart';
@@ -79,16 +80,12 @@ class _MainLayoutState extends State<MainLayout> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background, 
-
-        body: widget.navigationShell, // Dùng widget.navigationShell
-
-        floatingActionButton: showFab 
+        backgroundColor: AppColors.background,
+        body: widget.navigationShell,
+        floatingActionButton: showFab
             ? DashboardFab(onPressed: fabAction!)
             : null,
-        
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
         bottomNavigationBar: DashboardBottomBar(
           currentIndex: widget.navigationShell.currentIndex,
           onTap: _onTabSelected,

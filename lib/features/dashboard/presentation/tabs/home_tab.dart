@@ -7,6 +7,7 @@ import '../../../../domain/entities/device_entity.dart';
 import '../widgets/device_card.dart';
 import '../widgets/dashboard_app_bar.dart';
 import '../blocs/device_bloc.dart';
+import '../../../../core_ui/blocs/connectivity/connectivity_bloc.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -22,7 +23,7 @@ class HomeTab extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+              child: const Text("Hủy", style: TextStyle(color: AppColors.grey)),
             ),
             TextButton(
               onPressed: () {
@@ -32,7 +33,7 @@ class HomeTab extends StatelessWidget {
                   SnackBar(content: Text("Đã xóa $deviceName")),
                 );
               },
-              child: const Text("Xóa", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              child: const Text("Xóa", style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -50,16 +51,69 @@ class HomeTab extends StatelessWidget {
         }, 
       ),
       body: SafeArea(
-        child: BlocBuilder<DeviceBloc, DeviceState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        child: BlocBuilder<ConnectivityBloc, ConnectivityState>(
+          builder: (context, connectivityState) {
+            final bool isOffline = connectivityState is ConnectivityFailure;
+            
+            return BlocBuilder<DeviceBloc, DeviceState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-            if (state.userDevices.isEmpty) {
-              return _buildEmptyState();
-            }
-            return _buildDeviceList(context, state.userDevices);
+                if (state.userDevices.isEmpty) {
+                  return _buildEmptyState();
+                }
+                // 👇 TÍNH CÁC TỦ MẤT KẾT NỐI
+                final offlineDevices = state.userDevices.where((d) => d.status == 0).toList();
+                
+                return Column(
+                  children: [
+                    // 0. Cảnh báo Mất mạng điện thoại (ƯU TIÊN HIỂN THỊ TRÊN CÙNG)
+                    if (isOffline)
+                      Container(
+                        width: double.infinity,
+                        color: AppColors.error,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.wifi_off, color: Colors.white, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              "Mất kết nối Internet",
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // 1. Banner cảnh báo (chỉ hiện nếu có tủ mất kết nối)
+                    if (offlineDevices.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                    color: Colors.orangeAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Có ${offlineDevices.length} tủ đang mất kết nối!",
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                    // 2. Danh sách thiết bị
+                    Expanded(child: _buildDeviceList(context, state.userDevices)),
+                  ],
+                );
+              },
+            );
           },
         ),
       ),

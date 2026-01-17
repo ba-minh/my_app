@@ -7,14 +7,17 @@ import 'app/di/dependency_injection.dart' as di;
 import 'app/di/dependency_injection.dart'; 
 import 'app/router/app_router.dart';
 
-// Import Blocs
 import 'features/auth/presentation/blocs/auth_bloc.dart'; 
 import 'features/auth/presentation/blocs/auth_event.dart'; 
-import 'features/dashboard/presentation/blocs/device_bloc.dart'; // Import DeviceBloc
+import 'features/dashboard/presentation/blocs/device_bloc.dart';
+import 'core_ui/blocs/connectivity/connectivity_bloc.dart'; 
+
+import 'app/utils/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService().init();
   await di.init();
   runApp(const MyApp());
 }
@@ -32,10 +35,13 @@ class MyApp extends StatelessWidget {
         ),
 
         // 2. Device Bloc (Nhà kho thiết bị)
-        // 👇 SỬA: Dùng sl<DeviceBloc>() để lấy từ DI (đã có UseCase bên trong)
-        // và gọi LoadDevices() ngay lập tức để lấy dữ liệu giả.
         BlocProvider<DeviceBloc>(
           create: (context) => sl<DeviceBloc>()..add(LoadDevices()),
+        ),
+
+        // 3. Connectivity Bloc (Mạng)
+        BlocProvider<ConnectivityBloc>(
+          create: (_) => ConnectivityBloc()..add(ConnectivityObserve()),
         ),
       ],
       child: MaterialApp.router(

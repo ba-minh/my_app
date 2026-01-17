@@ -63,13 +63,13 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: onAvatarTap, 
                 child: Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Colors.white30,
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withOpacity(0.3),
                     shape: BoxShape.circle,
                   ),
                   child: CircleAvatar(
                     radius: 18,
-                    backgroundColor: Colors.white24,
+                    backgroundColor: AppColors.white.withOpacity(0.24),
                     // 👇 Chỉ hiển thị ảnh mạng hoặc icon mặc định
                     backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
                         ? NetworkImage(photoUrl)

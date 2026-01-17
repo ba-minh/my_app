@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core_ui/theme/app_colors.dart';
 
 class DeviceOptionSheet extends StatelessWidget {
   final String name;           // Tên thiết bị hiển thị trên đầu
@@ -30,7 +31,7 @@ class DeviceOptionSheet extends StatelessWidget {
           
           // Nút Cài đặt
           ListTile(
-            leading: const Icon(Icons.settings, color: Colors.blue),
+            leading: const Icon(Icons.settings, color: AppColors.blue),
             title: const Text("Cài đặt / Đổi tên"),
             onTap: () {
               Navigator.pop(context); // Đóng menu trước
@@ -40,8 +41,8 @@ class DeviceOptionSheet extends StatelessWidget {
           
           // Nút Xóa
           ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: const Text("Xóa thiết bị", style: TextStyle(color: Colors.red)),
+            leading: const Icon(Icons.delete, color: AppColors.error),
+            title: const Text("Xóa thiết bị", style: TextStyle(color: AppColors.error)),
             onTap: () {
               Navigator.pop(context); // Đóng menu trước
               onDelete();             // Gọi hàm xóa ở màn hình cha

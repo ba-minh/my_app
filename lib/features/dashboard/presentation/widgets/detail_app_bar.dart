@@ -24,7 +24,7 @@ class DetailAppBar extends StatelessWidget implements PreferredSizeWidget {
       // 👇 LOGIC ẨN/HIỆN NÚT BACK
       leading: showBackButton 
           ? IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: AppColors.white),
               onPressed: onBackPressed ?? () => Navigator.pop(context),
             )
           : null, // Nếu false thì không hiện gì
@@ -32,7 +32,7 @@ class DetailAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColors.white,
           fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
