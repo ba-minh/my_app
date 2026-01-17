@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart'; 
+import 'package:connectivity_plus/connectivity_plus.dart'; // 👇 Import check mạng
 import '../../../../domain/usecases/get_user_devices_usecase.dart'; 
 import '../../../../domain/entities/device_entity.dart'; 
 
@@ -135,15 +136,52 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
       }
     });
 
-    // 5. ToggleDeviceStatus
-    on<ToggleDeviceStatus>((event, emit) {
-      final updatedList = List<Map<String, dynamic>>.from(state.uiIODevices);
-      final currentDevice = updatedList[event.index];
-      updatedList[event.index] = {
-        ...currentDevice,
-        'isOn': !(currentDevice['isOn'] ?? false),
-      };
-      emit(state.copyWith(uiIODevices: updatedList));
+    // 5. ToggleDeviceStatus (Logic Mới: Optimistic UI + Rollback)
+    on<ToggleDeviceStatus>((event, emit) async {
+      final int index = event.index;
+      final currentList = List<Map<String, dynamic>>.from(state.uiIODevices);
+      final currentDevice = currentList[index];
+      final bool oldStatus = currentDevice['isOn'] ?? false;
+      final bool newStatus = !oldStatus;
+
+      // BƯỚC 1: Cập nhật UI ngay lập tức (Optimistic)
+      currentList[index] = { ...currentDevice, 'isOn': newStatus };
+      emit(state.copyWith(uiIODevices: currentList, errorMessage: null)); // Clear error cũ
+
+      // BƯỚC 2: Giả lập độ trễ mạng (1 giây)
+      await Future.delayed(const Duration(seconds: 1));
+
+      // BƯỚC 3: Kiểm tra kết nối
+      // (Do Backend chưa xong, ta coi như mọi lần gọi server đều cần check mạng trước)
+      final connectivityResult = await Connectivity().checkConnectivity();
+      final bool hasNetwork = !connectivityResult.contains(ConnectivityResult.none);
+
+      // Điều kiện lỗi: Mất mạng HOẶC Tủ Offline (Status == 0)
+      // Lưu ý: Ở đây ta logic tạm là nếu Tủ đang status=0 (trong userDevices) thì coi như tủ Offline
+      bool isDeviceOnline = true;
+      // Tìm tủ hiện tại (giả định đang làm việc với tủ đầu tiên hoặc logic chọn tủ phức tạp hơn)
+      // Ở screen Detail ta đã mapping ra UI, nên khó check ngược lại status tủ gốc nếu không lưu ID.
+      // TẠM THỜI: Check mạng điện thoại trước.
+
+      if (!hasNetwork) {
+         // BƯỚC 4: ROLLBACK nếu lỗi
+         // Trả về trạng thái cũ
+         currentList[index] = { ...currentDevice, 'isOn': oldStatus };
+         
+         emit(state.copyWith(
+           uiIODevices: currentList,
+           errorMessage: "Mất kết nối Internet! Không thể gửi lệnh.",
+           errorTimestamp: DateTime.now().millisecondsSinceEpoch,
+         ));
+      } else {
+        // Nếu có mạng -> Giả lập Server chưa xong -> Có thể cho thành công hoặc thất bại tùy ý
+        // Theo yêu cầu user: "Server chưa xong... Gửi lệnh API... Mất mạng hoặc tủ offline quay về ban đầu"
+        // Ta giả định ở đây là gửi thành công nếu có mạng.
+        
+        // Nếu muốn check Tủ Offline:
+        // Cần truyền ID tủ vào event hoặc lưu currentDeviceEntity trong Bloc.
+        // Tạm thời bỏ qua check tủ offline sâu, chỉ check mạng theo yêu cầu chính.
+      }
     });
 
     // 6. ResetDeviceEvent

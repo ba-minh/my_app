@@ -91,14 +91,14 @@ class _CabinetDetailScreenState extends State<CabinetDetailScreen> {
         title: const Text("Xác nhận xóa"),
         content: Text("Bạn có chắc muốn xóa '$name'?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy", style: TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy", style: TextStyle(color: AppColors.grey))),
           TextButton(
             onPressed: () {
               context.read<DeviceBloc>().add(DeleteDeviceItem(index, type));
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Đã xóa $name")));
             },
-            child: const Text("Xóa", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: const Text("Xóa", style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -109,26 +109,42 @@ class _CabinetDetailScreenState extends State<CabinetDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      // 👇 Sửa: Lấy tên từ widget.device.name
       appBar: DetailAppBar(title: widget.device.name),
-      
-      body: BlocBuilder<DeviceBloc, DeviceState>(
-        builder: (context, state) {
-          final sensors = state.uiSensors;
-          final ioDevices = state.uiIODevices;
+      body: BlocListener<DeviceBloc, DeviceState>(
+        listenWhen: (previous, current) =>
+            previous.errorTimestamp != current.errorTimestamp,
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: AppColors.error,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        },
+        child: BlocBuilder<DeviceBloc, DeviceState>(
+          builder: (context, state) {
+            final sensors = state.uiSensors;
+            final ioDevices = state.uiIODevices;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- SECTION: CẢM BIẾN ---
-                if (sensors.isNotEmpty) ...[
-                   Text("Cảm biến môi trường", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 12),
-                   SizedBox(
-                    height: 110,
-                    child: ListView.builder(
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- SECTION: CẢM BIẾN ---
+                  if (sensors.isNotEmpty) ...[
+                    Text("Cảm biến môi trường",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 110,
+                      child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: sensors.length,
                         itemBuilder: (context, index) {
@@ -147,47 +163,57 @@ class _CabinetDetailScreenState extends State<CabinetDetailScreen> {
                           );
                         },
                       ),
-                   ),
-                   const SizedBox(height: 24),
-                ],
-
-                // --- SECTION: THIẾT BỊ I/O ---
-                if (ioDevices.isNotEmpty) ...[
-                  Text("Thiết bị trong trang trại", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: ioDevices.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1.1,
                     ),
-                    itemBuilder: (context, index) {
-                      final device = ioDevices[index];
-                      return InkWell(
-                        onLongPress: () => _showOptions(index, 'device'),
-                        borderRadius: BorderRadius.circular(20),
-                        child: IODeviceCard(
-                          name: device['name'],
-                          isOn: device['isOn'],
-                          deviceIcon: device['icon'] ?? Icons.devices,
-                          onTap: () {
-                            context.read<DeviceBloc>().add(ToggleDeviceStatus(index));
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // --- SECTION: THIẾT BỊ I/O ---
+                  if (ioDevices.isNotEmpty) ...[
+                    Text("Thiết bị trong trang trại",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: ioDevices.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1.1,
+                      ),
+                      itemBuilder: (context, index) {
+                        final device = ioDevices[index];
+                        return InkWell(
+                          onLongPress: () => _showOptions(index, 'device'),
+                          borderRadius: BorderRadius.circular(20),
+                          child: IODeviceCard(
+                            name: device['name'],
+                            isOn: device['isOn'],
+                            deviceIcon: device['icon'] ?? Icons.devices,
+                            onTap: () {
+                              context
+                                  .read<DeviceBloc>()
+                                  .add(ToggleDeviceStatus(index));
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 100),
                 ],
-                const SizedBox(height: 100),
-              ],
-            ),
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
-      
       floatingActionButton: DashboardFab(
-        onPressed: () => _openAddEditSheet(), 
+        onPressed: () => _openAddEditSheet(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

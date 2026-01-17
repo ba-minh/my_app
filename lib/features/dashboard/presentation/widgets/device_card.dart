@@ -20,9 +20,9 @@ class DeviceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Xác định màu sắc dựa trên trạng thái
-    final statusColor = isOnline ? AppColors.primary : Colors.grey;
+    final statusColor = isOnline ? AppColors.primary : AppColors.grey;
     final statusText = isOnline ? "Đang kết nối" : "Mất kết nối";
-    final statusTextColor = isOnline ? Colors.green : Colors.grey;
+    final statusTextColor = isOnline ? AppColors.primary : AppColors.grey;
 
     return InkWell(
       onTap: onTap,
@@ -30,12 +30,12 @@ class DeviceCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.grey200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: AppColors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -63,7 +63,7 @@ class DeviceCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16, 
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87
+                  color: AppColors.black87
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,

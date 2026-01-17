@@ -50,6 +50,8 @@ dependencies:
   google_fonts: ^6.3.3
   google_sign_in: ^6.2.1
   mobile_scanner: ^7.1.4
+  firebase_messaging: ^16.1.0
+  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core_ui/theme/app_colors.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -20,8 +21,8 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1E5128), // Màu xanh lá đậm giống thiết kế
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.primary, // Màu xanh lá đậm giống thiết kế
+          foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8), // Bo góc nhẹ
           ),
@@ -31,7 +32,7 @@ class PrimaryButton extends StatelessWidget {
             ? const SizedBox(
                 height: 24,
                 width: 24,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2),
               )
             : Text(
                 text,

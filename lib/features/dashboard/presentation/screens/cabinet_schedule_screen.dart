@@ -23,7 +23,7 @@ class CabinetScheduleScreen extends StatelessWidget {
         child: Text(
           "Nội dung cài đặt lịch biểu sẽ hiển thị ở đây\n(Khác với màn hình điều khiển)",
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey, fontSize: 16),
+          style: TextStyle(color: AppColors.grey, fontSize: 16),
         ),
       ),
     );

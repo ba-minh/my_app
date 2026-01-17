@@ -57,14 +57,14 @@ class AppTheme {
       // 7. CẤU HÌNH Ô NHẬP LIỆU (InputDecoration) - MỚI THÊM
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white, 
+        fillColor: AppColors.white, 
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14),
+        hintStyle: GoogleFonts.inter(color: AppColors.grey400, fontSize: 14),
         
         // Viền khi bình thường (chưa bấm vào)
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.grey300),
         ),
         
         // Viền khi đang nhập (Focus) -> Màu Xanh chủ đạo

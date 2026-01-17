@@ -20,7 +20,7 @@ class SensorCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primary),
       ),
@@ -32,7 +32,7 @@ class SensorCard extends StatelessWidget {
             title,
             style: const TextStyle(
               fontSize: 12, 
-              color: Colors.black87
+              color: AppColors.black87
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -57,7 +57,7 @@ class SensorCard extends StatelessWidget {
                   unit,
                   style: const TextStyle(
                     fontSize: 14, 
-                    color: Colors.grey
+                    color: AppColors.grey
                   ),
                 ),
               ),

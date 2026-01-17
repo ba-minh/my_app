@@ -20,7 +20,7 @@ class DashboardBottomBar extends StatelessWidget {
     return Container(
       height: barHeight,
       decoration: const BoxDecoration(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(borderRadius),
           topRight: Radius.circular(borderRadius),
@@ -61,7 +61,7 @@ class DashboardBottomBar extends StatelessWidget {
   Widget _buildNavItem(IconData icon, String label, int index) {
     final bool isSelected = currentIndex == index;
     // Màu sắc: Chọn thì xanh, không chọn thì xám đậm (để trông đậm hơn)
-    final Color itemColor = isSelected ? AppColors.primary : Colors.black87;
+    final Color itemColor = isSelected ? AppColors.primary : AppColors.black87;
 
     return Expanded(
       child: InkWell(
