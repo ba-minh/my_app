@@ -22,7 +22,14 @@ import '../../data/repositories/device_repository_impl.dart';
 import '../../data/datasources/local/command_queue_local_datasource.dart';
 import '../../domain/repositories/device_repository.dart';
 import '../../domain/usecases/get_user_devices_usecase.dart'; 
+import '../../domain/usecases/update_device_usecase.dart'; // Import mới
 import '../../features/dashboard/presentation/blocs/device_bloc.dart';
+
+// --- Schedule Imports ---
+import '../../features/schedule/data/datasources/schedule_local_datasource.dart';
+import '../../features/schedule/domain/repositories/schedule_repository.dart';
+import '../../features/schedule/data/repositories/schedule_repository_impl.dart';
+import '../../features/schedule/presentation/blocs/schedule_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -104,7 +111,28 @@ Future<void> init() async {
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => GetUserDevicesUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateDeviceUseCase(sl())); // Register UseCase
 
   // --- Blocs ---
-  sl.registerFactory(() => DeviceBloc(getUserDevicesUseCase: sl())); 
+  sl.registerFactory(() => DeviceBloc(
+    getUserDevicesUseCase: sl(),
+    updateDeviceUseCase: sl(), // Inject UseCase
+  )); 
+
+  // ==========================
+  // 3. FEATURE: SCHEDULE
+  // ==========================
+
+  // Data Source
+  sl.registerLazySingleton<ScheduleLocalDatasource>(
+    () => ScheduleLocalDatasourceImpl(),
+  );
+
+  // Repository
+  sl.registerLazySingleton<ScheduleRepository>(
+    () => ScheduleRepositoryImpl(localDataSource: sl()),
+  );
+
+  // Bloc
+  sl.registerFactory(() => ScheduleBloc(repository: sl())); 
 }

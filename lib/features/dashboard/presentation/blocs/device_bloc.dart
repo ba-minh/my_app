@@ -3,14 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart'; // 👇 Import check mạng
 import '../../../../domain/usecases/get_user_devices_usecase.dart'; 
 import '../../../../domain/entities/device_entity.dart'; 
+import '../../../../domain/usecases/update_device_usecase.dart'; // Import UseCase 
 
 part 'device_event.dart';
 part 'device_state.dart';
 
+
+
 class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
   final GetUserDevicesUseCase getUserDevicesUseCase;
+  final UpdateDeviceUseCase updateDeviceUseCase; // Declare UseCase
+  
+  // Track selected Device ID to update it later
+  String? _selectedDeviceId;
 
-  DeviceBloc({required this.getUserDevicesUseCase}) : super(DeviceState(isLoading: true)) {
+  DeviceBloc({
+    required this.getUserDevicesUseCase,
+    required this.updateDeviceUseCase,
+  }) : super(DeviceState(isLoading: true)) {
     
     // 1. LOAD DANH SÁCH TỦ (HOME)
     on<LoadDevices>((event, emit) async {
@@ -33,7 +43,22 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
 
     // 👇 7. MỚI: XỬ LÝ KHI CHỌN TỦ (MAPPING DATA)
     on<SelectDevice>((event, emit) {
-      final device = event.device;
+      print("🔎 DEBUG: SelectDevice called for ID: ${event.device.id}");
+      print("🔎 DEBUG: Current state.userDevices count: ${state.userDevices.length}");
+
+      final deviceInState = state.userDevices.cast<DeviceEntity>().firstWhere(
+        (d) => d.id == event.device.id,
+        orElse: () => event.device,
+      );
+
+      // [SMART FIX] Nếu device trong State bị rỗng danh sách Relay (do lỗi nào đó) 
+      // mà device từ UI truyền vào lại có dữ liệu -> Ưu tiên device có dữ liệu!
+      final device = (deviceInState.relays.isEmpty && event.device.relays.isNotEmpty)
+          ? event.device
+          : deviceInState;
+          
+      print("🔎 DEBUG: Using device from ${device == deviceInState ? 'STATE' : 'EVENT/UI'}");
+      print("🔎 DEBUG: Relays: ${device.relays.length}, Temp: ${device.temp.length}");
 
       // A. Mapping Sensors (Nhiệt độ, Độ ẩm)
       final List<Map<String, dynamic>> mappedSensors = [];
@@ -57,17 +82,24 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
       }
 
       // B. Mapping Relays (Đầu ra)
-      // Chuyển mảng [1, 0, 0, 1] thành danh sách UI
+      _selectedDeviceId = device.id; // Store ID when selected
       final List<Map<String, dynamic>> mappedIODevices = [];
       
       for (int i = 0; i < device.relays.length; i++) {
-        final int status = device.relays[i]; // 1 hoặc 0
+        final int status = device.relays[i];
+        // Use custom name if available, else default
+        final String name = (device.relayNames.length > i && device.relayNames[i].isNotEmpty) 
+            ? device.relayNames[i] 
+            : 'Đầu ra ${i + 1}';
+            
         mappedIODevices.add({
-          'name': 'Đầu ra ${i + 1}', // Tự đặt tên: Đầu ra 1, 2...
-          'isOn': status == 1,       // 1 là true (Bật), 0 là false (Tắt)
-          'icon': Icons.bolt, // Icon mặc định
+          'name': name,
+          'isOn': status == 1,
+          'icon': Icons.bolt,
         });
       }
+
+      print("🔎 DEBUG: Mapped ${mappedIODevices.length} IO devices and ${mappedSensors.length} sensors");
 
       // Cập nhật State
       emit(state.copyWith(
@@ -124,11 +156,58 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
     });
 
     // 4. UpdateDeviceItem
-    on<UpdateDeviceItem>((event, emit) {
+    on<UpdateDeviceItem>((event, emit) async {
       if (event.type == 'device') {
+        // Update UI State
         final updatedList = List<Map<String, dynamic>>.from(state.uiIODevices);
         updatedList[event.index] = event.newData;
         emit(state.copyWith(uiIODevices: updatedList));
+
+        // Persist to Local Storage
+        if (_selectedDeviceId != null) {
+            try {
+                // Find current device entity
+                final currentDevice = state.userDevices.firstWhere((d) => d.id == _selectedDeviceId);
+                print("DEBUG: Updating persistence for device ${currentDevice.id}, index ${event.index}");
+                
+                // Create updated relayNames list
+                List<String> updatedNames = List<String>.from(currentDevice.relayNames);
+                // Ensure list is long enough
+                if (updatedNames.length <= event.index) {
+                    // Fill with empty or default until index
+                    for (int k = updatedNames.length; k <= event.index; k++) {
+                        updatedNames.add(""); 
+                    }
+                }
+                
+                // Set new name
+                updatedNames[event.index] = event.newData['name'];
+                
+                // Create new entity
+                final newEntity = DeviceEntity(
+                    id: currentDevice.id,
+                    name: currentDevice.name,
+                    status: currentDevice.status,
+                    relays: currentDevice.relays,
+                    inputs: currentDevice.inputs,
+                    temp: currentDevice.temp,
+                    hum: currentDevice.hum,
+                    relayNames: updatedNames,
+                    timestamp: DateTime.now().millisecondsSinceEpoch
+                );
+
+                // Call save usecase
+                await updateDeviceUseCase(newEntity);
+                print("DEBUG: Saved relayNames: ${newEntity.relayNames}");
+                
+                // Update userDevices list in state too so it reflects immediately if we navigate back
+                final updatedUserDevices = state.userDevices.map((d) => d.id == newEntity.id ? newEntity : d).toList();
+                emit(state.copyWith(userDevices: updatedUserDevices));
+                
+            } catch (e) {
+                print("Error saving device name: $e");
+            }
+        }
       } else {
         final updatedList = List<Map<String, dynamic>>.from(state.uiSensors);
         updatedList[event.index] = event.newData;
