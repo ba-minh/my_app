@@ -70,7 +70,7 @@ class CabinetScheduleScreen extends StatelessWidget {
             builder: (context, deviceState) {
               // 👇 LẤY DỮ LIỆU MỚI NHẤT TỪ BLOC (TRÁNH DỮ LIỆU CŨ TỪ NAVIGATION)
               // Tìm device trong list theo ID. Nếu không thấy (hiếm), dùng tạm widget.device
-              final latestDevice = deviceState.userDevices.firstWhere(
+              final latestDevice = deviceState.userDevices.cast<DeviceEntity>().firstWhere(
                 (d) => d.id == device.id, 
                 orElse: () => device
               );
