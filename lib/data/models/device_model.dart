@@ -9,6 +9,7 @@ class DeviceModel extends DeviceEntity {
     required List<int> inputs,
     required List<double> temp,
     required List<double> hum,
+    List<String> relayNames = const [],
     required int timestamp,
   }) : super(
           id: id,
@@ -18,6 +19,7 @@ class DeviceModel extends DeviceEntity {
           inputs: inputs,
           temp: temp,
           hum: hum,
+          relayNames: relayNames,
           timestamp: timestamp,
         );
 
@@ -38,6 +40,9 @@ class DeviceModel extends DeviceEntity {
       hum: (json['hum'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ?? [],
+      relayNames: (json['relay_names'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ?? [],
       timestamp: json['timestamp'] ?? 0,
     );
   }
@@ -52,6 +57,7 @@ class DeviceModel extends DeviceEntity {
       'inputs': inputs,
       'temp': temp,
       'hum': hum,
+      'relay_names': relayNames,
       'timestamp': timestamp,
     };
   }

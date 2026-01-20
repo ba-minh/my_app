@@ -8,6 +8,7 @@ class DeviceEntity extends Equatable {
   final List<int> inputs;   // Trạng thái các cổng vào (Mapping từ "input": [0,1...])
   final List<double> temp; // Danh sách nhiệt độ (thay vì temp)
   final List<double> hum;  // Danh sách độ ẩm (thay vì hum)
+  final List<String> relayNames; // Custom names for relays
   final int timestamp;      // Thời gian cập nhật
 
   const DeviceEntity({
@@ -18,9 +19,10 @@ class DeviceEntity extends Equatable {
     required this.inputs,
     required this.temp,
     required this.hum,
+    this.relayNames = const [],
     required this.timestamp,
   });
 
   @override
-  List<Object?> get props => [id, name, status, relays, inputs, temp, hum, timestamp];
+  List<Object?> get props => [id, name, status, relays, inputs, temp, hum, relayNames, timestamp];
 }

@@ -92,7 +92,7 @@ final GoRouter appRouter = GoRouter(
                     final device = state.extra as DeviceEntity;
                     
                     return CabinetScheduleScreen(
-                      cabinetName: device.name,
+                      device: device,
                     );
                   },
                 ),
